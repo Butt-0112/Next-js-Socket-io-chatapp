@@ -124,6 +124,13 @@ const MainChat = () => {
 
     fetchDevices();
   }, []);
+  useEffect(()=>{
+    if(!streamingCall){
+      if(socket&&clientPeer){
+        socket.emit("call-ended",{to:clientPeer})
+      }
+    }
+  },[streamingCall,socket])
 
   useEffect(() => {
     const fetchMessages = async () => {
