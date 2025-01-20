@@ -12,8 +12,9 @@ const StateProvider = ({ children }) => {
   const [user, setUser] = useState({})
   const [selectedUser, setSelectedUser] = useState({})
   const [messages, setMessages] = useState([])
-  const API_BASE_URL = "http://no-knives.gl.at.ply.gg:21223"
-  const SOCKET_URL = "http://localhost:5500"
+  const API_BASE_URL =process.env. NEXT_PUBLIC_SOCKET_BACKEND_URL
+  console.log(API_BASE_URL)
+  const SOCKET_URL = process.env. NEXT_PUBLIC_SOCKET_BACKEND_URL
   // const SOCKET_URL = "http://me-visited.gl.at.ply.gg:21227"
   const [userPeer, setUserPeer] = useState(null)
   const router = useRouter()

@@ -29,10 +29,10 @@ const formSchema = z.object({
     })
   })
    
+  const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 
 const Signup = () => {
-  const API_BASE_URL = "http://no-knives.gl.at.ply.gg:21223"
-
+ 
   const {socket} = useContext(context)
     const router  = useRouter()
     const form = useForm({

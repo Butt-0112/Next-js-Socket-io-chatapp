@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import React, { useContext, useEffect,useState } from 'react'
 import { useRouter } from "next/navigation"
 import {context} from "@/context/context"
+
 const formSchema = z.object({
     email:  z.string().email({
       message:"Please provide a valid email."
@@ -24,9 +25,10 @@ const formSchema = z.object({
       message:"Password must be at least 8 characters."
     })
   })
+  const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
    
 const Login = () => {
-    const API_BASE_URL = "http://no-knives.gl.at.ply.gg:21223"
+    
 
     const router  = useRouter()
     const form = useForm({

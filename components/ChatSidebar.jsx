@@ -18,9 +18,9 @@ import { Input } from "./ui/input"
 import { Contact, Loader2, PlusCircleIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
 import SidebarSkeleton from "./SidebarSkeleton"
+const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 
-export default function AppSidebar() {
-    const API_BASE_URL = "http://no-knives.gl.at.ply.gg:21223"
+export default function AppSidebar() { 
     const { users, setSelectedUser } = useContext(context)
     const [query, setQuery] = useState('')
     const [queryUsers, setQueryUsers] = useState({ users: [], totalUsers: 0 })

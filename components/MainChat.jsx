@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
  
 import AudioCall from "./AudioCall";
+const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
  
 const MainChat = () => {
   const {
@@ -30,8 +31,7 @@ const MainChat = () => {
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   // const [messages,setMessages] = useState([])
-  const API_BASE_URL = "http://no-knives.gl.at.ply.gg:21223";
-  const [callingToPeer, setCallingToPeer] = useState(false);
+ const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [streamingCall, setStreamingCall] = useState(false);
