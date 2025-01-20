@@ -162,15 +162,8 @@ const MainChat = () => {
     setCallType(type)
 
       });
-      socket.on('user-disconnected', ({userID}) =>{
-        if(clientPeer===userID){
-          setCallEnded(true);
-          setIncomingCall(false);
-          setCallingToPeer(false);
-          setStreamingCall(false);
-          setIsRndSelected(true);
-          remoteStreamRef.current = null
-        }
+      socket.on('disconnect', ( ) =>{
+        socket.emit('call-ended',{to:clientPeer})
       })
    
       socket.on("call-ended-from", ({ to }) => {
