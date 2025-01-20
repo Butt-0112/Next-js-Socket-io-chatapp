@@ -32,7 +32,7 @@ const MainChat = () => {
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   // const [messages,setMessages] = useState([])
  const [callingToPeer, setCallingToPeer] = useState(false);
-  const [callEnded, setCallEnded] = useState(false);
+  const [callEnded, setCallEnded] = useState(true);
   const [incomingCall, setIncomingCall] = useState(false);
   const [streamingCall, setStreamingCall] = useState(false);
   const [answered, setAnswered] = useState(false);
@@ -74,6 +74,7 @@ const MainChat = () => {
   };
 
   const sendCall = (type) => {
+    setCallEnded(false)
     setClientPeer(selectedUser?.userID);
     if (socket) {
       socket.emit("call", { from: user?._id, to: selectedUser?.userID  ,type});
@@ -357,7 +358,7 @@ const MainChat = () => {
       )}
       <div></div>
 
-      {(streamingCall || incomingCall || callingToPeer) && (
+      {(streamingCall || incomingCall || callingToPeer) && !callEnded&& (
         <div
           className={`absolute ${isRndSelected
               ? "fixed inset-0 h-full w-full flex justify-center items-center"
