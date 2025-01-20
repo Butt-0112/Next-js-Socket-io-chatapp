@@ -124,13 +124,7 @@ const MainChat = () => {
 
     fetchDevices();
   }, []);
-  useEffect(()=>{
-    if(!streamingCall){
-      if(socket&&clientPeer){
-        socket.emit("call-ended",{to:clientPeer})
-      }
-    }
-  },[streamingCall,socket])
+
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -168,6 +162,16 @@ const MainChat = () => {
     setCallType(type)
 
       });
+      socket.on('user-disconnected', ({userID}) =>{
+        if(clientPeer===userID){
+          setCallEnded(true);
+          setIncomingCall(false);
+          setCallingToPeer(false);
+          setStreamingCall(false);
+          setIsRndSelected(true);
+          remoteStreamRef.current = null
+        }
+      })
    
       socket.on("call-ended-from", ({ to }) => {
         setCallEnded(true);
