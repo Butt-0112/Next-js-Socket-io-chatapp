@@ -125,7 +125,20 @@ const MainChat = () => {
     fetchDevices();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if(socket){
 
+        socket.emit('user-disconnected', { userId: user?._id });
+      }
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [socket, user]);
   useEffect(() => {
     const fetchMessages = async () => {
       const response = await fetch(`${API_BASE_URL}/api/users/fetchMessages`, {
