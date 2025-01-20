@@ -163,6 +163,7 @@ const MainChat = () => {
 
       });
      socket.on("user-disconnected",()=>{
+      console.log('user disconnected')
       setCallEnded(true);
       setIncomingCall(false);
       setCallingToPeer(false);
