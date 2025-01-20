@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
        >
          <SidebarProvider>
           {showSidebar&&<AppSidebar/>}
-          {showSidebar&& <SidebarTrigger className="absolute right-0" />}
+          {showSidebar&& <SidebarTrigger className="" />}
           <main className="w-full"> 
 
         {children}
