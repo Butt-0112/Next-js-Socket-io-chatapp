@@ -163,6 +163,7 @@ const MainChat = () => {
 
       });
       socket.on('disconnect', ( ) =>{
+        console.log('user - disconnected')
         socket.emit('call-ended',{to:clientPeer})
       })
    
