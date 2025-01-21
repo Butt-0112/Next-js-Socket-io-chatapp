@@ -68,7 +68,7 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
       </TabsContent>
       <TabsContent value={userID}>
         <Card>
-        <video ref={audioRef} autoPlay muted  ></video>
+        <video ref={localVidRef} autoPlay muted  ></video>
          
         </Card>
       </TabsContent>
