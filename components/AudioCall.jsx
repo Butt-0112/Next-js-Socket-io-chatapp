@@ -37,7 +37,7 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream,localStream])
+  }, [stream,localStream,selected])
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -99,11 +99,11 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
   } */}
 
           {stream&&hasVideo? 
-          selected===userID?
+         ( selected===userID?
           <video onContextMenu={()=>{return}}   ref={mainlocalVidRef} autoPlay muted className={`max-w-[416px] rounded-lg  `}  ></video>
           :
           <video onContextMenu={()=>{return}}   ref={mainaudioRef} autoPlay muted className={`max-w-[416px] rounded-lg  `} ></video>
-      
+      )
           :<div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
             <UserCircle size={60} />
