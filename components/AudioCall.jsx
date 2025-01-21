@@ -77,9 +77,6 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
 
       <Card className='px-2 py-2 h-full'>
 
-
-
-
  
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
