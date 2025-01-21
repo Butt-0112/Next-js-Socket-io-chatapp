@@ -49,13 +49,6 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
     <div className=''>
 
 
-      <Card className='px-2 py-2 h-full'>
-
-
-
-
-
-
      {stream&&hasVideo&& <Tabs defaultValue={peerID} className="w-[400px]">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value={peerID}>
@@ -81,6 +74,13 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
       </TabsContent>
     </Tabs>
 }
+
+      <Card className='px-2 py-2 h-full'>
+
+
+
+
+
 
 
 
