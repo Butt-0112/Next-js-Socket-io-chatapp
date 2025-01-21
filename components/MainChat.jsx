@@ -402,6 +402,7 @@ const MainChat = () => {
                 userID={user?._id}
                 hangUp={hangUpCall}
                 clientPeer={clientPeer}
+                
                 stream={remoteStreamRef.current}
                 sendVidCallInvite={sendVidCallInvite}
                 incomingVidCall={incomingVidCall}
