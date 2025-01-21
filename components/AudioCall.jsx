@@ -73,11 +73,11 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
 :stream&& <audio ref={audioRef} autoPlay className='hidden'></audio>} */}
 
       <Card className='px-2 py-2 h-full'>
-      {stream&&hasVideo && <div className='flex'>
-        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(peerID)}} ref={audioRef} autoPlay className={`max-w-52 ${selected===peerID&&'border border-white'}`} ></video>
-        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(userID)}} ref={localVidRef} autoPlay  className={`max-w-52 ${selected===userID&&'border border-white'}`}  ></video>
+      {stream&&hasVideo ? <div className='flex py-2'>
+        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(peerID)}} ref={audioRef} autoPlay className={`max-w-52 rounded-lg ${selected===peerID&&'border border-white'}`} ></video>
+        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(userID)}} ref={localVidRef} autoPlay  className={`max-w-52 rounded-lg ${selected===userID&&'border border-white'}`}  ></video>
         
-      </div> }
+      </div>:stream&& <audio ref={audioRef} autoPlay className='hidden'></audio>}
  
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
@@ -88,14 +88,19 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
     )
   } */}
 
-          <div className="flex gap-2 h-40 justify-center flex-col items-center ">
+          {stream&&hasVideo? 
+          selected===peerID?
+          <video onContextMenu={()=>{return}}   ref={audioRef} autoPlay className={`max-w-52 rounded-lg  `} ></video>
+          :<video onContextMenu={()=>{return}}   ref={localVidRef} autoPlay  className={`max-w-52 rounded-lg  `}  ></video>
+      
+          :<div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
             <UserCircle size={60} />
             <CardTitle className='text-2xl'>
 
               {isLoading ? <Loader2 className='animate-spin' /> : isCalling ? `Calling to ${user.name}` : user.name}
             </CardTitle>
-          </div>
+          </div>}
          {incomingCall&& <div>
             <Button onClick={answerVidCall} > Answer vid call</Button>
           </div>}
