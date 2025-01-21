@@ -36,13 +36,13 @@ const AudioCall = ({ stream,incomingVidCall,callType, answerVidCall, isRndSelect
 
     <div className=''>
 
+
+      <Card className='px-2 py-2 h-full'>
 {stream && hasVideo ? (
       <video ref={audioRef} autoPlay  ></video>
     ) : stream&& (
       <audio ref={audioRef} autoPlay className='hidden'></audio>
     )}
-
-      <Card className='px-2 py-2 h-full'>
 
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
