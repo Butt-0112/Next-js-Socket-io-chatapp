@@ -19,6 +19,8 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
   const [isLoading, setIsLoading] = useState(true)
   const hasVideo = stream && stream.getVideoTracks().length > 0;
   const [selected,setSelected] = useState(peerID)
+  const mainaudioRef = useRef(null)
+  const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
   useEffect(() => {
     if (audioRef.current && stream) {
@@ -27,6 +29,14 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
     if(localVidRef.current&&localStream){
       localVidRef.current.srcObject = localStream
     }
+    if(mainaudioRef.current&&stream){
+      mainaudioRef.current.srcObject = stream
+    }
+    
+    if(mainlocalVidRef.current&&localStream){
+      mainlocalVidRef.current.srcObject = localStream
+    }
+
   }, [stream,localStream])
   useEffect(() => {
     const fetchUser = async () => {
@@ -90,8 +100,8 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
 
           {stream&&hasVideo? 
           selected===peerID?
-          <video onContextMenu={()=>{return}}   ref={audioRef} autoPlay className={`max-w-52 rounded-lg  `} ></video>
-          :<video onContextMenu={()=>{return}}   ref={localVidRef} autoPlay  className={`w-full rounded-lg  `}  ></video>
+          <video onContextMenu={()=>{return}}   ref={mainaudioRef} autoPlay className={`max-w-[400px] rounded-lg  `} ></video>
+          :<video onContextMenu={()=>{return}}   ref={mainlocalVidRef} autoPlay  className={`max-w-[400px] rounded-lg  `}  ></video>
       
           :<div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
