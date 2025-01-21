@@ -56,11 +56,13 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
         <TabsTrigger value={userID}>{userID}    </TabsTrigger>
       </TabsList>
       <TabsContent value={peerID}>
+        other stream {peerID}
         <Card>
         <video ref={audioRef} autoPlay    ></video>
         </Card>
       </TabsContent>
       <TabsContent value={userID}>
+        my stream {userID}
         <Card>
         <video ref={localVidRef} autoPlay muted  ></video>
          
