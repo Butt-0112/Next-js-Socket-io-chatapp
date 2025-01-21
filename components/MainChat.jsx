@@ -407,6 +407,7 @@ const MainChat = () => {
                 incomingVidCall={incomingVidCall}
                 answerVidCall={AnswerVidCall}
                 callType={callType}
+                localStream={localStreamRef.current}
               />
             }
           </div>

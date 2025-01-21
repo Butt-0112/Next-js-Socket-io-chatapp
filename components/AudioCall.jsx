@@ -1,21 +1,33 @@
 import { context } from '@/context/context'
 import React, { useRef, useEffect, useContext, useState } from 'react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent, CardFooter,CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Import, Loader2, Mic, Phone, User2, UserCircle, Video } from 'lucide-react'
 import { Button } from './ui/button'
-
-const AudioCall = ({ stream,incomingVidCall,callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+import { Button } from "@/components/ui/button"
+ 
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const hasVideo = stream && stream.getVideoTracks().length > 0;
-
+  const localVidRef = useRef(null)
   useEffect(() => {
     if (audioRef.current && stream) {
       audioRef.current.srcObject = stream
     }
-  }, [stream])
+    if(localVidRef.current&&localStream){
+      localVidRef.current.srcObject = localStream
+    }
+  }, [stream,localStream])
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -40,12 +52,51 @@ const AudioCall = ({ stream,incomingVidCall,callType, answerVidCall, isRndSelect
       <Card className='px-2 py-2 h-full'>
 
 
+
+
+
+
+     {stream&&hasVideo&& <Tabs defaultValue={peerID} className="w-[400px]">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value={peerID}>
+          <Card className='w-[100px] h-[100px]'>
+          
+
+          </Card>
+          </TabsTrigger>
+        <TabsTrigger value={userID}>   <Card className='w-[100px] h-[100px]'>
+            
+          </Card></TabsTrigger>
+      </TabsList>
+      <TabsContent value={peerID}>
+        <Card>
+        <video ref={audioRef} autoPlay    ></video>
+        </Card>
+      </TabsContent>
+      <TabsContent value={userID}>
+        <Card>
+        <video ref={audioRef} autoPlay muted  ></video>
+         
+        </Card>
+      </TabsContent>
+    </Tabs>
+}
+
+
+
+
+
+
+
+
+
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
-{stream && hasVideo ? (
-      <video ref={audioRef} autoPlay   className='max-w-14'></video>
-    ) : stream&& (
+{stream && !hasVideo && (
+    //   <video ref={audioRef} autoPlay   className='max-w-'></video>
+    // ) : stream&& (
       <audio ref={audioRef} autoPlay className='hidden'></audio>
-    )}
+    )
+  }
 
           <div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
