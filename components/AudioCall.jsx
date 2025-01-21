@@ -91,7 +91,7 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
           {stream&&hasVideo? 
           selected===peerID?
           <video onContextMenu={()=>{return}}   ref={audioRef} autoPlay className={`max-w-52 rounded-lg  `} ></video>
-          :<video onContextMenu={()=>{return}}   ref={localVidRef} autoPlay  className={`max-w-52 rounded-lg  `}  ></video>
+          :<video onContextMenu={()=>{return}}   ref={localVidRef} autoPlay  className={`w-full rounded-lg  `}  ></video>
       
           :<div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
