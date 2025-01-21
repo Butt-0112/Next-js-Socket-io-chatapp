@@ -167,7 +167,7 @@ const MainChat = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on("incoming-call", ({ from, to }) => {
+      socket.on("incoming-call", ({ from, to,type }) => {
         console.log(to);
         console.log(user?._id);
         setClientPeer(from);
