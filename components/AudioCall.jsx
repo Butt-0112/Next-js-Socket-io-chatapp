@@ -18,6 +18,7 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
   const [user, setUser] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const hasVideo = stream && stream.getVideoTracks().length > 0;
+  const [selected,setSelected] = useState(peerID)
   const localVidRef = useRef(null)
   useEffect(() => {
     if (audioRef.current && stream) {
@@ -73,8 +74,8 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
 
       <Card className='px-2 py-2 h-full'>
       {stream&&hasVideo && <div className='flex'>
-        <video ref={audioRef} autoPlay className='max-w-52' ></video>
-        <video ref={localVidRef} autoPlay  className='max-w-52'   ></video>
+        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(peerID)}} ref={audioRef} autoPlay className={`max-w-52 ${selected===peerID&&'border border-white'}`} ></video>
+        <video onContextMenu={()=>{return}} onClick={()=>{setSelected(userID)}} ref={localVidRef} autoPlay  className={`max-w-52 ${selected===userID&&'border border-white'}`}  ></video>
         
       </div> }
  
