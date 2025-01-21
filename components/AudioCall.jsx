@@ -79,7 +79,7 @@ const AudioCall = ({ stream,incomingVidCall,callType, answerVidCall, isRndSelect
         </div>}
         {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2   py-3'>
 
-          <button onClick={()=> answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg w-full justify-center flex hover:bg-green-700">
+          <button onClick={()=> answerCall('video')} className="px-4 py-2 bg-green-500 text-white rounded-lg w-full justify-center flex hover:bg-green-700">
             <Phone />
           </button>
           <button onClick={hangUp} className="px-4 py-2 bg-red-500 text-white rounded-lg w-full justify-center flex hover:bg-red-700">
