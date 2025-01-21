@@ -49,7 +49,7 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
     <div className=''>
 
 
-     {stream&&hasVideo&& <Tabs defaultValue={peerID} className="w-[400px]">
+     {stream&&hasVideo?<Tabs defaultValue={peerID} className="w-[400px]">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value={peerID}>
           <Card className='w-[100px] h-[100px]'>
@@ -73,7 +73,7 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
         </Card>
       </TabsContent>
     </Tabs>
-}
+:stream&& <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
       <Card className='px-2 py-2 h-full'>
 
@@ -91,12 +91,12 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
 
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
-{stream && !hasVideo && (
-    //   <video ref={audioRef} autoPlay   className='max-w-'></video>
-    // ) : stream&& (
-      <audio ref={audioRef} autoPlay className='hidden'></audio>
+{/* {stream && !hasVideo && (
+      <video ref={audioRef} autoPlay   className='max-w-'></video>
+    ) : stream&& (
+     
     )
-  }
+  } */}
 
           <div className="flex gap-2 h-40 justify-center flex-col items-center ">
 
