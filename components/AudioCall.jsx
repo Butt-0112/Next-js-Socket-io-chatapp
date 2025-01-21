@@ -80,15 +80,7 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
 
 
 
-
-
-
-
-
-
-
-
-
+ 
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
 {/* {stream && !hasVideo && (
