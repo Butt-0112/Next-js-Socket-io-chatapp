@@ -73,8 +73,8 @@ const AudioCall = ({ stream,incomingVidCall,localStream,callType, answerVidCall,
 
       <Card className='px-2 py-2 h-full'>
       {stream&&hasVideo && <div className='flex'>
-        <video ref={audioRef} autoPlay    ></video>
-        <video ref={localVidRef} autoPlay    ></video>
+        <video ref={audioRef} autoPlay className='max-w-52' ></video>
+        <video ref={localVidRef} autoPlay  className='max-w-52'   ></video>
         
       </div> }
  
