@@ -94,7 +94,7 @@ const AudioCall = ({ stream,incomingVidCal,localStream,callType, answerVidCall, 
               {isLoading ? <Loader2 className='animate-spin' /> : isCalling ? `Calling to ${user.name}` : user.name}
             </CardTitle>
           </div>
-         {incomingVidCall&& <div>
+         {incomingCall&& <div>
             <Button onClick={answerVidCall} > Answer vid call</Button>
           </div>}
         </Card>
