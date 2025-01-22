@@ -100,13 +100,13 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
 
           {stream && hasVideo ?
             (
-              <div className='max-w-[416px] max-h-[200px]'>
+              <div className='max-w-[416px] max-h-[311px]'>
                 {
                   selected === userID ?
 
-                    <video onContextMenu={() => { return }} ref={mainlocalVidRef} autoPlay muted className={`max-w-[416px] rounded-lg  `}  ></video>
+                    <video onContextMenu={() => { return }} ref={mainlocalVidRef} autoPlay muted className={`max-w-[416px] max-h-[311px] rounded-lg  `}  ></video>
                     :
-                    <video onContextMenu={() => { return }} ref={mainaudioRef} autoPlay muted className={`max-w-[416px] rounded-lg  `} ></video>
+                    <video onContextMenu={() => { return }} ref={mainaudioRef} autoPlay muted className={`max-w-[416px] max-h-[311px] rounded-lg  `} ></video>
                 }
               </div>
             )
