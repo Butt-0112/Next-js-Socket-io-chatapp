@@ -104,7 +104,7 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
                 {
                   selected === userID ?
 
-                    <video onContextMenu={() => { return }} ref={mainlocalVidRef} autoPlay muted className={`max-w-[416px] max-h-[311px] rounded-lg  `}  ></video>
+                    <video onContextMenu={() => { return }}  ref={mainlocalVidRef} autoPlay muted className={`max-w-[416px] max-h-[311px] rounded-lg  `}  ></video>
                     :
                     <video onContextMenu={() => { return }} ref={mainaudioRef} autoPlay muted className={`max-w-[416px] max-h-[311px] rounded-lg  `} ></video>
                 }
@@ -140,7 +140,7 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
         </div>}
         {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2   py-3'>
 
-          <button onClick={() => answerCall('video')} className="px-4 py-2 bg-green-500 text-white rounded-lg w-full justify-center flex hover:bg-green-700">
+          <button onClick={() => answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg w-full justify-center flex hover:bg-green-700">
             <Phone />
           </button>
           <button onClick={hangUp} className="px-4 py-2 bg-red-500 text-white rounded-lg w-full justify-center flex hover:bg-red-700">
