@@ -84,8 +84,8 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
 
       <Card className='px-2 py-2 h-full'>
         {stream && hasVideo ? <div className='flex py-2'>
-          <video onContextMenu={() => { return }} onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`max-w-52 rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
-          <video onContextMenu={() => { return }} onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`max-w-52 rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
+          <video onContextMenu={() => { return }} muted={selected===userID} onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`max-w-52 rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
+          <video onContextMenu={() => { return }} muted={selected===userID} onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`max-w-52 rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
 
         </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
@@ -100,7 +100,7 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
 
           {stream && hasVideo ?
             (
-              <div className='max-w-[416px] max-h-[311px]'>
+              <div className='max-w-[416px]  h-[311px]'>
                 {
                   selected === userID ?
 
