@@ -84,8 +84,14 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
 
       <Card className='px-2 py-2 h-full'>
         {stream && hasVideo ? <div className='flex py-2'>
-          <video onContextMenu={(e) => { e.preventDefault() }}  onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`max-w-52 rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
-          <video onContextMenu={(e) => { e.preventDefault() }} muted onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`max-w-52 rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
+          <div className="max-w-52 video-container cursor-pointer">
+
+          <video onContextMenu={(e) => { e.preventDefault() }}  onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`video-element rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
+          </div>
+          <div className="max-w-52 video-container cursor-pointer">
+
+          <video onContextMenu={(e) => { e.preventDefault() }} muted onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`video-element rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
+          </div>
 
         </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
