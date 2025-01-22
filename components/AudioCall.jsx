@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useContext, useState } from 'react'
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Import, Loader2, Mic, Phone, User2, UserCircle, Video } from 'lucide-react'
 import { Button } from './ui/button'
-
+import '../css/videoaudio.css'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
