@@ -106,6 +106,12 @@ const StateProvider = ({ children }) => {
     fetchdata()
   }, [])
   useEffect(()=>{
+    if(user){
+
+      setUserPeer( new Peer(user._id))
+    }
+  },[user])
+  useEffect(()=>{
     if(!socket)return
     if(!userPeer)return
     if(!stream)return

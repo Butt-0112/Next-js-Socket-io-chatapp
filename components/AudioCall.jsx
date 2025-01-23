@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -22,6 +22,7 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
   const mainaudioRef = useRef(null)
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
+ 
   useEffect(() => {
     if (audioRef.current && stream) {
       audioRef.current.srcObject = stream
@@ -50,40 +51,21 @@ const AudioCall = ({ stream, incomingVidCall, localStream, callType, answerVidCa
     }
   }, [peerID])
 
-
-
-
+ 
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
   return (
 
 
     <div className=''>
 
 
-      {/* {stream&&hasVideo?<Tabs defaultValue={peerID} className="w-[400px]">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value={peerID}>
-           {peerID}
-          </TabsTrigger>
-        <TabsTrigger value={userID}>{userID}    </TabsTrigger>
-      </TabsList>
-      <TabsContent value={peerID}>
-        other stream {peerID}
-        <Card>
-        <video ref={audioRef} autoPlay    ></video>
-        </Card>
-      </TabsContent>
-      <TabsContent value={userID}>
-        my stream {userID}
-        <Card>
-        <video ref={localVidRef} autoPlay muted  ></video>
-         
-        </Card>
-      </TabsContent>
-    </Tabs>
-:stream&& <audio ref={audioRef} autoPlay className='hidden'></audio>} */}
-
+     
       <Card className='px-2 py-2 h-full'>
-        {stream && hasVideo ? <div className='flex py-2'>
+         {stream && hasVideo ? <div className='flex py-2'>
           <div className="max-w-52 video-container cursor-pointer">
 
           <video onContextMenu={(e) => { e.preventDefault() }}  onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`video-element rounded-lg ${selected === peerID && 'border border-white'}`} ></video>

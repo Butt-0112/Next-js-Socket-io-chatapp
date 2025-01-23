@@ -27,7 +27,7 @@ export default function AppSidebar() {
     const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
     const [filteredUsers, setFilteredUsers] = useState([]); // Stores locally filtered results
     const [user,setUser ] = useState({})
-    const {toggleSidebar,isMobile} = useSidebar()
+    const {toggleSidebar,isMobile,open} = useSidebar()
     const [isPageLoading,setIsPageLoading] = useState(true)
     const [showLoader,setShowLoader] = useState({id:'',val:false})
     const fetchUser= async()=>{
@@ -72,7 +72,9 @@ export default function AppSidebar() {
             return { users: [], totalUsers: 0 };
         }
     };
-
+    useEffect(()=>{
+        console.log(open)
+    },[open])
     // Effect to filter users when the query changes
     useEffect(() => {
         if (query.trim() === '') {
@@ -149,7 +151,7 @@ export default function AppSidebar() {
         <>
        {  isPageLoading?<SidebarSkeleton />: <Sidebar>
           <SidebarHeader >
-                <h3 className="font-bold">Chats</h3>
+                <h3 className="font-bold pl-6">Chats</h3>
                 <SidebarMenu>
                     <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by username" />
                 </SidebarMenu>

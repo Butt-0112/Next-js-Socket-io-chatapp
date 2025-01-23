@@ -48,7 +48,7 @@ const MainChat = () => {
   const [isRndSelected, setIsRndSelected] = useState(true);
   const [windowSize, setWindowSize] = useState({ width: 280, height: 245 });
   const windowRef = useRef(null);
-
+ 
   const onMessage = async () => {
     if (message.length > 0) {
       if (selectedUser) {
@@ -106,6 +106,7 @@ const MainChat = () => {
       console.log(clientPeer);
       socket.emit("call-ended", { to: clientPeer });
       setIncomingCall(false);
+      setCallEnded(true)
       setCallingToPeer(false);
       setIsRndSelected(true);
       setStreamingCall(false);
@@ -251,7 +252,7 @@ const MainChat = () => {
       });
     }
   }, [socket]);
-
+ 
   const handleRndClick = (e) => {
     // e.stopPropagation();
     setIsRndSelected(true);
@@ -287,9 +288,10 @@ const MainChat = () => {
         style={{ gridArea: "head" }}
       >
         <div className="flex flex-col h-full justify-center w-full">
+      
           <div className="flex">
             {selectedUser?.userID && (
-              <div className="flex justify-between items-center w-full">
+              <div className="flex justify-between items-center w-full px-5">
                 <h3 className="font-bold">{selectedUser?.name}</h3>
                 <div className="flex">
 
@@ -300,21 +302,26 @@ const MainChat = () => {
                   <PhoneCall />
                 </Button>
                 </div>
+
               </div>
             )}
             <ModeToggle />
           </div>
-
-          <div className="h-4 flex items-center justify-center">
+          <div className="h-5 flex items-center justify-center">
             {streamingCall && !isRndSelected && (
               <div
                 onClick={handleRndClick}
-                className="bg-green-600 w-full text-center rounded-lg font-semibold cursor-pointer hover:bg-green-700 text-white text-sm"
+                className="bg-green-600 w-1/2 h-full text-center rounded-b-full font-semibold cursor-pointer hover:bg-green-700 text-white text-sm"
               >
                 Ongoing call....
               </div>
             )}
+            
+
+            
+            
           </div>
+         
         </div>
       </div>
       <div className="h-[100%]" style={{ gridArea: "main", overflowY: "auto" }}>
@@ -402,13 +409,16 @@ const MainChat = () => {
                 userID={user?._id}
                 hangUp={hangUpCall}
                 clientPeer={clientPeer}
-                
+                elapsedTime={elapsedTime}
+                timerInterval={timerInterval}
                 stream={remoteStreamRef.current}
                 sendVidCallInvite={sendVidCallInvite}
                 incomingVidCall={incomingVidCall}
                 answerVidCall={AnswerVidCall}
                 callType={callType}
                 localStream={localStreamRef.current}
+                setElapsedTime={setElapsedTime}
+                setTimerInterval={setTimerInterval}
               />
             }
           </div>
