@@ -409,16 +409,13 @@ const MainChat = () => {
                 userID={user?._id}
                 hangUp={hangUpCall}
                 clientPeer={clientPeer}
-                elapsedTime={elapsedTime}
-                timerInterval={timerInterval}
                 stream={remoteStreamRef.current}
                 sendVidCallInvite={sendVidCallInvite}
                 incomingVidCall={incomingVidCall}
                 answerVidCall={AnswerVidCall}
                 callType={callType}
                 localStream={localStreamRef.current}
-                setElapsedTime={setElapsedTime}
-                setTimerInterval={setTimerInterval}
+                
               />
             }
           </div>
