@@ -65,9 +65,9 @@ const StateProvider = ({ children }) => {
   const getUsers = ({ roomId, participants }) => {
     console.log(participants, 'participants of room', roomId)
   }
+  const token = localStorage.getItem('token')
   useEffect(() => {
     const fetchdata = async () => {
-      const token = localStorage.getItem('token')
       if (!token) { return }
       const user = await fetchUser()
       console.log(user)
@@ -104,13 +104,8 @@ const StateProvider = ({ children }) => {
       }
     }
     fetchdata()
-  }, [])
-  useEffect(()=>{
-    if(user){
+  }, [token])
 
-      setUserPeer( new Peer(user._id))
-    }
-  },[user])
   useEffect(()=>{
     if(!socket)return
     if(!userPeer)return
