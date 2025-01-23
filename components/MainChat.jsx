@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./ModeToggle";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "./ui/textarea"; 
 import {
  
   PhoneCall,
@@ -289,9 +289,9 @@ const MainChat = () => {
       >
         <div className="flex flex-col h-full justify-center w-full">
       
-          <div className="flex">
+          <div className="flex pl-5">
             {selectedUser?.userID && (
-              <div className="flex justify-between items-center w-full px-5">
+              <div className="flex justify-between items-center w-full ">
                 <h3 className="font-bold">{selectedUser?.name}</h3>
                 <div className="flex">
 
@@ -313,13 +313,11 @@ const MainChat = () => {
                 onClick={handleRndClick}
                 className="bg-green-600 w-1/2 h-full text-center rounded-b-full font-semibold cursor-pointer hover:bg-green-700 text-white text-sm"
               >
-                Ongoing call....
+                Ongoing call 
               </div>
             )}
             
-
-            
-            
+ 
           </div>
          
         </div>
@@ -349,7 +347,10 @@ const MainChat = () => {
             );
           })
         ) : (
-          <div>please open a chat</div>
+          <div className="w-full select-none gap-2 flex justify-center h-full flex-col items-center">
+            <img src={'/chat.png'} className="invert opacity-50 w-1/4" />
+            <h3 className="font-semibold text-zinc-300">open a chat or add a new contact</h3>
+            </div>
         )}
       </div>
       {selectedUser.userID && (

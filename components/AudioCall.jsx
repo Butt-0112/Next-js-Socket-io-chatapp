@@ -79,12 +79,7 @@ const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidC
 
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
-          {/* {stream && !hasVideo && (
-      <video ref={audioRef} autoPlay   className='max-w-'></video>
-    ) : stream&& (
-     
-    )
-  } */}
+ 
 
           {stream && hasVideo ?
             (
