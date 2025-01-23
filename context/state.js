@@ -20,6 +20,7 @@ const StateProvider = ({ children }) => {
   const router = useRouter()
   const [stream,setStream] = useState(null)
   const [peers, setPeers] = useState({});
+  const [userchanged,setUserChanged] = useState(false)
   useEffect(() => {
     console.log(selectedUser)
   }, [selectedUser])
@@ -65,9 +66,9 @@ const StateProvider = ({ children }) => {
   const getUsers = ({ roomId, participants }) => {
     console.log(participants, 'participants of room', roomId)
   }
-  const token = localStorage.getItem('token')
   useEffect(() => {
     const fetchdata = async () => {
+      const token = localStorage.getItem('token')
       if (!token) { return }
       const user = await fetchUser()
       console.log(user)
@@ -104,7 +105,7 @@ const StateProvider = ({ children }) => {
       }
     }
     fetchdata()
-  }, [token])
+  }, [userchanged])
 
   useEffect(()=>{
     if(!socket)return
@@ -125,7 +126,7 @@ const StateProvider = ({ children }) => {
     });
 
   },[socket,userPeer,stream])
-  return <context.Provider value={{fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
+  return <context.Provider value={{userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
     {children}
   </context.Provider>
 }

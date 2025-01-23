@@ -33,7 +33,7 @@ const formSchema = z.object({
 
 const Signup = () => {
  
-  const {socket} = useContext(context)
+  const {setUserChanged} = useContext(context)
     const router  = useRouter()
     const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,6 +70,7 @@ const Signup = () => {
       const json = await response.json()
       const token = json.authToken
       localStorage.setItem('token',token)
+      setUserChanged(true)
       router.push('/')
     }
   

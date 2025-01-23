@@ -29,7 +29,7 @@ const formSchema = z.object({
    
 const Login = () => {
     
-
+  const {setUserChanged } = useContext(context)
     const router  = useRouter()
     const form = useForm({
     resolver: zodResolver(formSchema),
@@ -52,6 +52,7 @@ const Login = () => {
     if(response.ok){
         const json = await response.json()
         localStorage.setItem('token',json.authToken)
+        setUserChanged(true)
         router.push('/')
     }
     
