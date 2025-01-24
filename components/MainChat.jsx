@@ -168,7 +168,7 @@ const MainChat = () => {
 const screenShare = ()=>{
   navigator.mediaDevices.getDisplayMedia({video:true,audio:true}).then((localStream)=>{
 
-    const call = userPeer.call(clientPeer,localStream)
+      userPeer.call(clientPeer,localStream,{metadata:{type:'sharedisplay'}})
     
   })
 }
