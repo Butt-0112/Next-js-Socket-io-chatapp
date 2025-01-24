@@ -168,7 +168,10 @@ const MainChat = () => {
 const screenShare = ()=>{
   navigator.mediaDevices.getDisplayMedia({video:true,audio:true}).then((localStream)=>{
 
-      userPeer.call(clientPeer,localStream,{metadata:{type:'sharedisplay'}})
+    const call =   userPeer.call(clientPeer,localStream,{metadata:{type:'sharedisplay'}})
+    call.on("stream", (remoteStream)=>{
+      remoteStreamRef.current = remoteStream
+    })
     
   })
 }
@@ -226,14 +229,16 @@ const screenShare = ()=>{
       userPeer.on("call", (call) => {
         const callType = call.metadata.type
         try {
-          if(callType==='sharedisplay'){
-           
+          // if(callType==='sharedisplay'){
+          //   console.log('in share display')
               
-              call.on("stream" , (remoteStream)=>{
-                remoteStreamRef.current = remoteStream
-              })
+          //     call.on("stream" , (remoteStream)=>{
+          //       console.log('setting display stream ')
+          //       remoteStreamRef.current = remoteStream
+                
+          //     })
            
-          }else{
+          // }else{
           navigator.mediaDevices
             .getUserMedia(callType === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
             .then((localStream) => {
@@ -247,7 +252,7 @@ const screenShare = ()=>{
                 console.log("received remote stream", remoteStream.id);
               });
             });
-          }
+          // }
         } catch (e) {
           console.error(e);
         }
