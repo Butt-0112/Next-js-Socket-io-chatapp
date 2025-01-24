@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,screenShare,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -61,8 +61,8 @@ const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidC
 
 
     <div className=''>
-
-
+{incomingCall&& <audio className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
+{isCalling&& <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
      
       <Card className='px-2 py-2 h-full'>
          {stream && hasVideo ? <div className='flex py-2'>
@@ -99,17 +99,20 @@ const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidC
               </div>
             )
             : <div className="flex gap-2 h-40 justify-center flex-col items-center ">
-
+              <CardTitle className='bg-green-500 animate-pulse px-2 py-2 rounded-lg'>
+                {incomingCall&& `Incoming ${callType} call`}
+                {isCalling&& `Calling`}
+              </CardTitle>
               <UserCircle size={60} />
               <CardTitle className='text-2xl'>
 
-                {isLoading ? <Loader2 className='animate-spin' /> : isCalling ? `Calling to ${user.name}` : user.name}
+                {isLoading ? <Loader2 className='animate-spin' /> :  user.name  }
               </CardTitle>
             </div>}
 
         </Card>
         {isRndSelected && !incomingCall && <div className="flex items-center justify-center gap-4 py-3">
-          <button disabled={isCalling} className='bg-zinc-800 px-2 py-2 disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+          <button onClick={screenShare} disabled={isCalling} className='bg-zinc-800 px-2 py-2 disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <Import className='rotate-180' size={25} />
           </button>
@@ -128,7 +131,7 @@ const AudioCall = ({ stream,  incomingVidCall, localStream, callType, answerVidC
         </div>}
         {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2   py-3'>
 
-          <button onClick={() => answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg w-full justify-center flex hover:bg-green-700">
+          <button onClick={() => answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg   w-full justify-center flex hover:bg-green-700">
             <Phone />
           </button>
           <button onClick={hangUp} className="px-4 py-2 bg-red-500 text-white rounded-lg w-full justify-center flex hover:bg-red-700">

@@ -4,18 +4,18 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./ModeToggle";
-import { Textarea } from "./ui/textarea"; 
+import { Textarea } from "./ui/textarea";
 import {
- 
+
   PhoneCall,
   SendHorizonal,
   Video,
-  
+
 } from "lucide-react";
- 
+
 import AudioCall from "./AudioCall";
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
- 
+
 const MainChat = () => {
   const {
     socket,
@@ -31,7 +31,7 @@ const MainChat = () => {
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   // const [messages,setMessages] = useState([])
- const [callingToPeer, setCallingToPeer] = useState(false);
+  const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [streamingCall, setStreamingCall] = useState(false);
@@ -48,7 +48,7 @@ const MainChat = () => {
   const [isRndSelected, setIsRndSelected] = useState(true);
   const [windowSize, setWindowSize] = useState({ width: 280, height: 245 });
   const windowRef = useRef(null);
- 
+
   const onMessage = async () => {
     if (message.length > 0) {
       if (selectedUser) {
@@ -74,19 +74,19 @@ const MainChat = () => {
   };
 
   const sendCall = (type) => {
-        setClientPeer(selectedUser?.userID);
+    setClientPeer(selectedUser?.userID);
     if (socket) {
-      socket.emit("call", { from: user?._id, to: selectedUser?.userID  ,type});
+      socket.emit("call", { from: user?._id, to: selectedUser?.userID, type });
 
       setCallingToPeer(true);
     }
   };
-  const sendVidCallInvite = ()=>{
-    if(!clientPeer){
+  const sendVidCallInvite = () => {
+    if (!clientPeer) {
       setClientPeer(selectedUser?.userID)
     }
-    if(socket){
-      socket.emit("vid-call" ,{from:user?._id, to:!clientPeer? selectedUser?.userID: clientPeer})
+    if (socket) {
+      socket.emit("vid-call", { from: user?._id, to: !clientPeer ? selectedUser?.userID : clientPeer })
       setVidCalling(true)
     }
   }
@@ -128,14 +128,14 @@ const MainChat = () => {
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if(socket){
+      if (socket) {
 
         socket.emit('user-disconnected', { userId: user?._id });
       }
     };
-  
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-  
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
@@ -165,27 +165,33 @@ const MainChat = () => {
       fetchdata();
     }
   }, [selectedUser, user]);
+const screenShare = ()=>{
+  navigator.mediaDevices.getDisplayMedia({video:true,audio:true}).then((localStream)=>{
 
+    const call = userPeer.call(clientPeer,localStream)
+    
+  })
+}
   useEffect(() => {
     if (socket) {
-      socket.on("incoming-call", ({ from, to,type }) => {
+      socket.on("incoming-call", ({ from, to, type }) => {
         console.log(to);
         console.log(user?._id);
         setClientPeer(from);
         setIncomingCall(true);
-    setCallType(type)
+        setCallType(type)
 
       });
-     socket.on("user-disconnected",()=>{
-      console.log('user disconnected')
-      setCallEnded(true);
-      setIncomingCall(false);
-      setCallingToPeer(false);
-      setStreamingCall(false);
-      setIsRndSelected(true);
-      remoteStreamRef.current = null
+      socket.on("user-disconnected", () => {
+        console.log('user disconnected')
+        setCallEnded(true);
+        setIncomingCall(false);
+        setCallingToPeer(false);
+        setStreamingCall(false);
+        setIsRndSelected(true);
+        remoteStreamRef.current = null
 
-     })
+      })
       socket.on("call-ended-from", ({ to }) => {
         setCallEnded(true);
         setIncomingCall(false);
@@ -200,19 +206,12 @@ const MainChat = () => {
         setCallingToPeer(false);
         try {
           navigator.mediaDevices
-            .getUserMedia(type==='audio'? {  audio: { deviceId: selectedDeviceId } }: {video:true,audio:true})
+            .getUserMedia(type === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
             .then((localStream) => {
               localStreamRef.current = localStream;
-              console.log(from);
-              console.log(userPeer?._id, "user peer detected");
-              console.log(selectedUser, "client peer detected");
-              const call = userPeer.call(from, localStream, {metadata: {type}});
-              console.log(
-                "initiating peer call to",
-                from,
-                "with stream",
-                localStreamRef.current
-              );
+
+              const call = userPeer.call(from, localStream, { metadata: { type } });
+
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
                 console.log("received remote stream", remoteStream.id);
@@ -223,36 +222,40 @@ const MainChat = () => {
           console.error(e);
         }
       });
-       
+
       userPeer.on("call", (call) => {
         const callType = call.metadata.type
-        console.log(callType, ' - call type')
         try {
+          if(callType==='sharedisplay'){
+           
+              
+              call.on("stream" , (remoteStream)=>{
+                remoteStreamRef.current = remoteStream
+              })
+           
+          }else{
           navigator.mediaDevices
-            .getUserMedia(callType==='audio' ? { audio: { deviceId: selectedDeviceId } }: {video:true, audio:true})
+            .getUserMedia(callType === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
             .then((localStream) => {
-              console.log("send stream", localStream, "as answer");
               localStreamRef.current = localStream;
               setStreamingCall(true);
               setIncomingCall(false);
-              console.log(
-                userPeer._id,
-                "peer answering the call with stream",
-                localStreamRef.current
-              );
+
               call.answer(localStream);
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
                 console.log("received remote stream", remoteStream.id);
               });
             });
+          }
         } catch (e) {
           console.error(e);
         }
+      
       });
     }
   }, [socket]);
- 
+
   const handleRndClick = (e) => {
     // e.stopPropagation();
     setIsRndSelected(true);
@@ -288,19 +291,19 @@ const MainChat = () => {
         style={{ gridArea: "head" }}
       >
         <div className="flex flex-col h-full justify-center w-full">
-      
+
           <div className="flex pl-5">
             {selectedUser?.userID && (
               <div className="flex justify-between items-center w-full ">
                 <h3 className="font-bold">{selectedUser?.name}</h3>
                 <div className="flex">
 
-                <Button onClick={()=> sendCall('video')} variant="outline">
-                  <Video />
-                </Button>
-                <Button onClick={()=> sendCall('audio')} variant="outline">
-                  <PhoneCall />
-                </Button>
+                  <Button onClick={() => sendCall('video')} variant="outline">
+                    <Video />
+                  </Button>
+                  <Button onClick={() => sendCall('audio')} variant="outline">
+                    <PhoneCall />
+                  </Button>
                 </div>
 
               </div>
@@ -313,13 +316,13 @@ const MainChat = () => {
                 onClick={handleRndClick}
                 className="bg-green-600 w-1/2 h-full text-center rounded-b-full font-semibold cursor-pointer hover:bg-green-700 text-white text-sm"
               >
-                Ongoing call 
+                Ongoing call
               </div>
             )}
-            
- 
+
+
           </div>
-         
+
         </div>
       </div>
       <div className="h-[100%]" style={{ gridArea: "main", overflowY: "auto" }}>
@@ -329,8 +332,8 @@ const MainChat = () => {
             return (
               <div
                 className={`${message.from === user._id
-                    ? "bg-slate-400 dark:bg-zinc-900"
-                    : "bg-slate-500 dark:bg-black"
+                  ? "bg-slate-400 dark:bg-zinc-900"
+                  : "bg-slate-500 dark:bg-black"
                   } dark:text-white`}
                 style={{
                   float: message.from === user._id ? "right" : "left",
@@ -350,7 +353,7 @@ const MainChat = () => {
           <div className="w-full select-none gap-2 flex justify-center h-full flex-col items-center">
             <img src={'/chat.png'} className="invert opacity-50 w-1/4" />
             <h3 className="font-semibold text-zinc-300">open a chat or add a new contact</h3>
-            </div>
+          </div>
         )}
       </div>
       {selectedUser.userID && (
@@ -388,11 +391,11 @@ const MainChat = () => {
       )}
       <div></div>
 
-      {(streamingCall || incomingCall || callingToPeer) &&  (
+      {(streamingCall || incomingCall || callingToPeer) && (
         <div
           className={`absolute ${isRndSelected
-              ? "fixed inset-0 h-full w-full flex justify-center items-center"
-              : "hidden"
+            ? "fixed inset-0 h-full w-full flex justify-center items-center"
+            : "hidden"
             } min-w-[200px] min-h-[200px]  `}
         >
           <div
@@ -416,7 +419,7 @@ const MainChat = () => {
                 answerVidCall={AnswerVidCall}
                 callType={callType}
                 localStream={localStreamRef.current}
-                
+                screenShare={screenShare}
               />
             }
           </div>

@@ -151,7 +151,7 @@ export default function AppSidebar() {
         <>
        {  isPageLoading?<SidebarSkeleton />: <Sidebar>
           <SidebarHeader >
-                <h3 className="font-bold pl-6">Chats</h3>
+                <h3 className="font-bold pt-2 pl-6">Chats</h3>
                 <SidebarMenu>
                     <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by username" />
                 </SidebarMenu>
