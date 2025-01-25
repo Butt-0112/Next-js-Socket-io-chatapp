@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/ChatSidebar";
 import { usePathname } from 'next/navigation'; // Import the hook to get the current path
 import { useEffect, useState } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,6 +33,8 @@ useEffect(()=>{
 },[isOpen])
   const showSidebar = !noSidebarRoutes.includes(pathname);
   return (
+    <ClerkProvider>
+
     <html lang="en" suppressHydrationWarning>
       <body className="overflow-hidden">
         <StateProvider>
@@ -54,5 +57,6 @@ useEffect(()=>{
         </StateProvider>
       </body>
     </html>
+         </ClerkProvider>
   );
 }

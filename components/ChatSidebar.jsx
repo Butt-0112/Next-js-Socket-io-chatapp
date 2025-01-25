@@ -18,6 +18,7 @@ import { Input } from "./ui/input"
 import { Contact, Loader2, PlusCircleIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
 import SidebarSkeleton from "./SidebarSkeleton"
+import Link from "next/link"
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 
 export default function AppSidebar() { 
@@ -196,7 +197,9 @@ export default function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
+                <Link href={'/dashboard'} >
                 {user?.name}
+                </Link>
             </SidebarFooter>
         </Sidebar>}
         </>

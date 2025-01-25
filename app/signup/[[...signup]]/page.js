@@ -17,6 +17,7 @@ import { io } from "socket.io-client"
 import React, { useContext, useEffect,useState } from 'react'
 import { useRouter } from "next/navigation"
 import {context} from "@/context/context"
+import { SignIn } from "@clerk/nextjs"
 const formSchema = z.object({
     username: z.string().min(3, {
       message: "Username must be at least 3 characters.",
@@ -78,7 +79,7 @@ const Signup = () => {
  
   return (
     <div className="w-full">
-
+<SignIn />
     <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} method="POST" className="space-y-8">
       <FormField
