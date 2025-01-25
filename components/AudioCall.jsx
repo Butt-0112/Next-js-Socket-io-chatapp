@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-const AudioCall = ({ stream,screenShare,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -24,6 +24,7 @@ const AudioCall = ({ stream,screenShare,  incomingVidCall, localStream, callType
   const localVidRef = useRef(null)
  
   useEffect(() => {
+    console.log(isScreenSharing)
     if (audioRef.current && stream) {
       audioRef.current.srcObject = stream
     }
@@ -38,7 +39,7 @@ const AudioCall = ({ stream,screenShare,  incomingVidCall, localStream, callType
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream, localStream, selected])
+  }, [stream,isScreenSharing, localStream, selected])
   useEffect(() => {
     const fetchUser = async () => {
 

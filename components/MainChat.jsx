@@ -48,7 +48,7 @@ const MainChat = () => {
   const [isRndSelected, setIsRndSelected] = useState(true);
   const [windowSize, setWindowSize] = useState({ width: 280, height: 245 });
   const windowRef = useRef(null);
-
+  const [isScreenSharing,setIsScreenSharing] = useState(false)
   const onMessage = async () => {
     if (message.length > 0) {
       if (selectedUser) {
@@ -112,6 +112,7 @@ const MainChat = () => {
       setStreamingCall(false);
       remoteStreamRef.current = null
       setStream(null)
+      setIsScreenSharing(false)
     }
   };
   useEffect(() => {
@@ -228,6 +229,7 @@ const screenShare = ()=>{
 
       userPeer.on("call", (call) => {
         const callType = call.metadata.type
+       
         try {
           // if(callType==='sharedisplay'){
           //   console.log('in share display')
@@ -250,6 +252,11 @@ const screenShare = ()=>{
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
                 console.log("received remote stream", remoteStream.id);
+                if(callType==='sharedisplay')
+                  {
+                setIsScreenSharing(true)
+          
+                  }
               });
             });
           // }
@@ -425,6 +432,7 @@ const screenShare = ()=>{
                 callType={callType}
                 localStream={localStreamRef.current}
                 screenShare={screenShare}
+                isScreenSharing={isScreenSharing}
               />
             }
           </div>
