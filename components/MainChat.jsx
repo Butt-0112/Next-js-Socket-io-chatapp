@@ -15,6 +15,13 @@ import {
 
 import AudioCall from "./AudioCall";
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
+const fetchUsers = async()=>{
+  const res = await fetch(`/api/users/user`,{
+    method:"GET"
+  })
+  
+  return await res.json()
+}
 
 const MainChat = () => {
   const {
@@ -55,9 +62,9 @@ const MainChat = () => {
         console.log(selectedUser);
         socket.emit("private message", {
           content: message,
-          to: selectedUser.userID,
+          to: selectedUser.id,
         });
-        setMessages((prev) => [...prev, { content: message, from: user._id }]);
+        setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
       }
     }
@@ -74,30 +81,30 @@ const MainChat = () => {
   };
 
   const sendCall = (type) => {
-    setClientPeer(selectedUser?.userID);
+    setClientPeer(selectedUser?.id);
     if (socket) {
-      socket.emit("call", { from: user?._id, to: selectedUser?.userID, type });
+      socket.emit("call", { from: user?.id, to: selectedUser?.id, type });
 
       setCallingToPeer(true);
     }
   };
   const sendVidCallInvite = () => {
     if (!clientPeer) {
-      setClientPeer(selectedUser?.userID)
+      setClientPeer(selectedUser?.id)
     }
     if (socket) {
-      socket.emit("vid-call", { from: user?._id, to: !clientPeer ? selectedUser?.userID : clientPeer })
+      socket.emit("vid-call", { from: user?.id, to: !clientPeer ? selectedUser?.id : clientPeer })
       setVidCalling(true)
     }
   }
   const AnswerCall = (type) => {
     if (socket) {
-      socket.emit("answer", { from: user?._id, to: clientPeer, type });
+      socket.emit("answer", { from: user?.id, to: clientPeer, type });
     }
   };
   const AnswerVidCall = () => {
     if (socket) {
-      socket.emit("answer-vid-call", { from: user?._id, to: clientPeer });
+      socket.emit("answer-vid-call", { from: user?.id, to: clientPeer });
     }
   };
 
@@ -131,7 +138,7 @@ const MainChat = () => {
     const handleBeforeUnload = () => {
       if (socket) {
 
-        socket.emit('user-disconnected', { userId: user?._id });
+        socket.emit('user-disconnected', { id: user?.id });
       }
     };
 
@@ -150,8 +157,8 @@ const MainChat = () => {
           "auth-token": localStorage.getItem("token"),
         },
         body: JSON.stringify({
-          from: user._id,
-          to: selectedUser.userID,
+          from: user.id,
+          to: selectedUser.id,
         }),
       });
       if (response.ok) {
@@ -159,9 +166,10 @@ const MainChat = () => {
         setMessages(json);
       }
     };
-    if (selectedUser && selectedUser.userID && user && user._id) {
+    if (selectedUser && selectedUser.id && user && user.id) {
       const fetchdata = async () => {
         await fetchMessages();
+        await fetchUsers()
       };
       fetchdata();
     }
@@ -180,7 +188,7 @@ const screenShare = ()=>{
     if (socket) {
       socket.on("incoming-call", ({ from, to, type }) => {
         console.log(to);
-        console.log(user?._id);
+        console.log(user?.id);
         setClientPeer(from);
         setIncomingCall(true);
         setCallType(type)
@@ -305,9 +313,9 @@ const screenShare = ()=>{
         <div className="flex flex-col h-full justify-center w-full">
 
           <div className="flex pl-5">
-            {selectedUser?.userID && (
+            {selectedUser?.id && (
               <div className="flex justify-between items-center w-full ">
-                <h3 className="font-bold">{selectedUser?.name}</h3>
+                <h3 className="font-bold">{selectedUser?.username}</h3>
                 <div className="flex">
 
                   <Button onClick={() => sendCall('video')} variant="outline">
@@ -338,17 +346,17 @@ const screenShare = ()=>{
         </div>
       </div>
       <div className="h-[100%]" style={{ gridArea: "main", overflowY: "auto" }}>
-        {selectedUser.userID ? (
+        {selectedUser.id ? (
           messages.length > 0 &&
           messages.map((message, index) => {
             return (
               <div
-                className={`${message.from === user._id
+                className={`${message.from === user.id
                   ? "bg-slate-400 dark:bg-zinc-900"
                   : "bg-slate-500 dark:bg-black"
                   } dark:text-white`}
                 style={{
-                  float: message.from === user._id ? "right" : "left",
+                  float: message.from === user.id ? "right" : "left",
                   clear: "both", // Ensure proper stacking
                   padding: "8px 12px",
                   borderRadius: "12px",
@@ -363,12 +371,12 @@ const screenShare = ()=>{
           })
         ) : (
           <div className="w-full select-none gap-2 flex justify-center h-full flex-col items-center">
-            <img src={'/chat.png'} className="invert opacity-50 w-1/4" />
-            <h3 className="font-semibold text-zinc-300">open a chat or add a new contact</h3>
+            <img src={'/chat.png'} className="dark:invert opacity-50 w-1/4" />
+            <h3 className="font-semibold dar:text-zinc-300">open a chat or add a new contact</h3>
           </div>
         )}
       </div>
-      {selectedUser.userID && (
+      {selectedUser.id && (
         <div
           style={{
             gridArea: "foot",
@@ -422,7 +430,7 @@ const screenShare = ()=>{
                 incomingCall={incomingCall}
                 isRndSelected={isRndSelected}
                 isCalling={callingToPeer}
-                userID={user?._id}
+                id={user?.id}
                 hangUp={hangUpCall}
                 clientPeer={clientPeer}
                 stream={remoteStreamRef.current}

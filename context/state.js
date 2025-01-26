@@ -6,10 +6,11 @@ import { decryptMessage, decryptPrivateKey } from "@/app/encryption/encryptionUt
 import { useNavigate, useNavigation } from "react-router-dom";
 import { useRouter } from "next/navigation";
 import Peer from "peerjs";
+import { useUser } from "@clerk/nextjs";
 const StateProvider = ({ children }) => {
   const [socket, setSocket] = useState(null)
   const [users, setUsers] = useState([])
-  const [user, setUser] = useState({})
+  // const [user, setUser] = useState({})
   const [selectedUser, setSelectedUser] = useState({})
   const [messages, setMessages] = useState([])
   const API_BASE_URL =process.env. NEXT_PUBLIC_SOCKET_BACKEND_URL
@@ -21,9 +22,7 @@ const StateProvider = ({ children }) => {
   const [stream,setStream] = useState(null)
   const [peers, setPeers] = useState({});
   const [userchanged,setUserChanged] = useState(false)
-  useEffect(() => {
-    console.log(selectedUser)
-  }, [selectedUser])
+  const {user} = useUser()
   const fetchUserById = async(id)=>{
     const response = await fetch(`${API_BASE_URL}/api/users/getUserbyId`, {
       method: "POST",
@@ -66,22 +65,18 @@ const StateProvider = ({ children }) => {
   const getUsers = ({ roomId, participants }) => {
     console.log(participants, 'participants of room', roomId)
   }
+  useEffect(()=>{
+    // setUser()
+  },[])
   useEffect(() => {
     const fetchdata = async () => {
-      const token = localStorage.getItem('token')
-      if (!token) { return }
-      const user = await fetchUser()
-      console.log(user)
-      setUser(user)
-      const peer = new Peer(user._id)
-      setUserPeer(peer)
-      // try{
-      //   navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(stream=>setStream(stream))
-      // }catch(e){
-      //   console.error(e)
-      // }
+     
+      
+      
       if (user) {
-        const socket = io(`${SOCKET_URL}`, { auth: { userID: user._id } })
+        const peer = new Peer(user.id)
+        setUserPeer(peer)
+        const socket = io(`${SOCKET_URL}`, { auth: { userID: user.id } })
         setSocket(socket)
         socket.on('users', (users) => {
           setUsers(users)
@@ -99,31 +94,29 @@ const StateProvider = ({ children }) => {
         });
         socket.on("room-created", enterRoom)
         socket.on('get-users', getUsers)
-        // return () => {
-        //   socket.disconnect()
-        // }
+        
       }
     }
     fetchdata()
-  }, [userchanged])
+  }, [user])
 
   useEffect(()=>{
     if(!socket)return
     if(!userPeer)return
     if(!stream)return
-    socket.on('user-join', ({ userId }) => {
-      const call = userPeer.call(userId, stream);
-      call.on('stream', (remoteStream) => {
-        setPeers(prev => ({ ...prev, [userId]: remoteStream }));
-      });
-    });
+    // socket.on('user-join', ({ userId }) => {
+    //   const call = userPeer.call(userId, stream);
+    //   call.on('stream', (remoteStream) => {
+    //     setPeers(prev => ({ ...prev, [userId]: remoteStream }));
+    //   });
+    // });
 
-    userPeer.on('call', (call) => {
-      call.answer(stream);
-      call.on('stream', (remoteStream) => {
-        setPeers(prev => ({ ...prev, [call.peer]: remoteStream }));
-      });
-    });
+    // userPeer.on('call', (call) => {
+    //   call.answer(stream);
+    //   call.on('stream', (remoteStream) => {
+    //     setPeers(prev => ({ ...prev, [call.peer]: remoteStream }));
+    //   });
+    // });
 
   },[socket,userPeer,stream])
   return <context.Provider value={{userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>

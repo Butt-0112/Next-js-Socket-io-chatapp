@@ -8,7 +8,7 @@ import AppSidebar from "@/components/ChatSidebar";
 import { usePathname } from 'next/navigation'; // Import the hook to get the current path
 import { useEffect, useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-
+import { dark } from '@clerk/themes'
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -33,7 +33,9 @@ useEffect(()=>{
 },[isOpen])
   const showSidebar = !noSidebarRoutes.includes(pathname);
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{
+      baseTheme: dark,
+    }} >
 
     <html lang="en" suppressHydrationWarning>
       <body className="overflow-hidden">

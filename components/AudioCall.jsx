@@ -107,7 +107,7 @@ const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, local
               <UserCircle size={60} />
               <CardTitle className='text-2xl'>
 
-                {isLoading ? <Loader2 className='animate-spin' /> :  user.name  }
+                {isLoading ? <Loader2 className='animate-spin' /> :  user?.username ||user?.firstName ||user?.email}
               </CardTitle>
             </div>}
 
