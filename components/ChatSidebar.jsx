@@ -12,6 +12,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { context } from "@/context/context"
 import { useContext, useEffect, useState, useCallback } from "react"
 import { Input } from "./ui/input"
@@ -26,14 +32,13 @@ import debounce from "lodash.debounce";
 import { useUser } from "@clerk/nextjs"
 
 export default function AppSidebar() {
-  const {selectedUser, setSelectedUser } = useContext(context)
-
+  const { selectedUser, user, setSelectedUser } = useContext(context)
+  const { isLoaded, isSignedIn } = useUser()
   const [queryUsers, setQueryUsers] = useState({ users: [], totalUsers: 0 })
   const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
   const [filteredUsers, setFilteredUsers] = useState([]); // Stores locally filtered results
   // const [user,setUser ] = useState({})
-  const { user } = useUser()
-  console.log(user)
+
   const { toggleSidebar, isMobile, open } = useSidebar()
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
@@ -42,7 +47,6 @@ export default function AppSidebar() {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const { API_BASE_URL } = useContext(context)
-
   const fetchUsers = async (searchQuery) => {
     if (searchQuery.length < 3) {
       setUsers([]);
@@ -53,19 +57,18 @@ export default function AppSidebar() {
       const response = await fetch(`${API_BASE_URL}/api/users/search?query=${searchQuery}`);
       const data = await response.json();
 
-      if (response.ok) {
-        console.log(data.users)
-        const filteredUsers= data.users.filter(s_user=>s_user.id!==user.id)
-        setUsers(filteredUsers);
-      } else {
-        console.error(data.error);
+      if (user) {
+        setUsers(data.users.filter(n_user => n_user.id !== user.id))
       }
+      //  else {
+      //   console.error(data.error);
+      // }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
-  const debouncedFetchUsers = useCallback(debounce(fetchUsers, 300), []);
+  const debouncedFetchUsers = useCallback(debounce(fetchUsers, 300), [user]);
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -82,7 +85,7 @@ export default function AppSidebar() {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
-         
+
       },
       body: JSON.stringify({
         contactID: contact.id,
@@ -145,15 +148,27 @@ export default function AppSidebar() {
                   <ul>
                     {users.length > 0 && users.map((user) => (
                       <SidebarMenuItem key={user.id} className="flex gap-3 items-center ">
-                        <SidebarMenuButton className='h-full'>
-                          <Avatar>
-                            <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                            <AvatarFallback>CN</AvatarFallback>
-                          </Avatar>
-                          <span>{user.username || user.email}</span>
+                        <div className='h-full w-full flex justify-between'>
+                          <div className="w-full flex items-center gap-2">
 
-                        </SidebarMenuButton>
-                        <PlusCircleIcon  onClick={async(e)=> {e.preventDefault();await handleAddContact(user)}} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
+                            <Avatar>
+                              <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
+                              <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
+                            </Avatar>
+                            <span>{user.username || user.email}</span>
+                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+
+                                <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Add to contacts</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </SidebarMenuItem>
                     ))}
                   </ul>
@@ -167,15 +182,15 @@ export default function AppSidebar() {
               <SidebarMenu>
                 {user?.publicMetadata.contacts && user.publicMetadata.contacts.length > 0 ? user.publicMetadata.contacts.map((user, index) => {
                   return <SidebarMenuItem key={index}>
-                    <SidebarMenuButton className='h-full' onClick={(e) => {e.preventDefault(); setSelectedUser(user); isMobile && toggleSidebar() }}>
-                    <Avatar>
-                            <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                            <AvatarFallback>CN</AvatarFallback>
-                          </Avatar>
-                          <span>
+                    <SidebarMenuButton className='h-full' onClick={(e) => { e.preventDefault(); setSelectedUser(user); isMobile && toggleSidebar() }}>
+                      <Avatar>
+                        <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                      <span>
 
-                      {user.username || user.email}
-                          </span>
+                        {user.username || user.email}
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 }) : <p>No contacts found</p>}
