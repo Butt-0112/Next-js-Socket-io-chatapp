@@ -42,7 +42,7 @@ export default function AppSidebar() {
   const { toggleSidebar, isMobile, open } = useSidebar()
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
-
+  const [contacts,setContacts] = useState([])
 
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
@@ -75,12 +75,41 @@ export default function AppSidebar() {
     setQuery(value);
     debouncedFetchUsers(value);
   };
+  const fetchContacts = async()=>{
+    const response = await fetch(`${API_BASE_URL}/api/users/fetchContacts`,{
+      method:"POST",
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        userId: user.id
+      })
+    })
+    if(response.ok){
 
+      const json = await response.json()
+      return json.contacts
+    }
+
+  }
+  useEffect(()=>{
+    if(user){
+        const fetchContactsData = async()=>{
+        
+        const contacts = await fetchContacts() 
+        setContacts(contacts)
+      }
+      fetchContactsData()
+
+    }
+  },[user])
 
 
   const handleAddContact = async (contact) => {
     setShowLoader({ id: user.id, val: true })
     // const response = await fetch('http://localhost:5500/api/users/add-contact',{
+    console.log(user.id)
+    console.log(contact.id)
     const response = await fetch(`${API_BASE_URL}/api/users/add-contact`, {
       method: "POST",
       headers: {
@@ -180,7 +209,7 @@ export default function AppSidebar() {
             <h3 className="font-semibold text-sm">Contacts</h3>
             <SidebarGroupContent>
               <SidebarMenu>
-                {user?.publicMetadata.contacts && user.publicMetadata.contacts.length > 0 ? user.publicMetadata.contacts.map((user, index) => {
+                {contacts && contacts.length > 0 ?contacts.map((user, index) => {
                   return <SidebarMenuItem key={index}>
                     <SidebarMenuButton className='h-full' onClick={(e) => { e.preventDefault(); setSelectedUser(user); isMobile && toggleSidebar() }}>
                       <Avatar>

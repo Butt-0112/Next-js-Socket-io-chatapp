@@ -62,7 +62,7 @@ const MainChat = () => {
         console.log(selectedUser);
         socket.emit("private message", {
           content: message,
-          to: selectedUser.id,
+          to: selectedUser.clerkId,
         });
         setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
@@ -81,19 +81,19 @@ const MainChat = () => {
   };
 
   const sendCall = (type) => {
-    setClientPeer(selectedUser?.id);
+    setClientPeer(selectedUser?.clerkId);
     if (socket) {
-      socket.emit("call", { from: user?.id, to: selectedUser?.id, type });
+      socket.emit("call", { from: user?.id, to: selectedUser?.clerkId, type });
 
       setCallingToPeer(true);
     }
   };
   const sendVidCallInvite = () => {
     if (!clientPeer) {
-      setClientPeer(selectedUser?.id)
+      setClientPeer(selectedUser?.clerkId)
     }
     if (socket) {
-      socket.emit("vid-call", { from: user?.id, to: !clientPeer ? selectedUser?.id : clientPeer })
+      socket.emit("vid-call", { from: user?.id, to: !clientPeer ? selectedUser?.clerkId : clientPeer })
       setVidCalling(true)
     }
   }
@@ -158,7 +158,7 @@ const MainChat = () => {
         },
         body: JSON.stringify({
           from: user.id,
-          to: selectedUser.id,
+          to: selectedUser.clerkId,
         }),
       });
       if (response.ok) {
@@ -166,7 +166,7 @@ const MainChat = () => {
         setMessages(json);
       }
     };
-    if (selectedUser && selectedUser.id && user && user.id) {
+    if (selectedUser && selectedUser.clerkId && user && user.id) {
       const fetchdata = async () => {
         await fetchMessages();
         await fetchUsers()
@@ -187,8 +187,7 @@ const screenShare = ()=>{
   useEffect(() => {
     if (socket) {
       socket.on("incoming-call", ({ from, to, type }) => {
-        console.log(to);
-        console.log(user?.id);
+       
         setClientPeer(from);
         setIncomingCall(true);
         setCallType(type)
@@ -313,7 +312,7 @@ const screenShare = ()=>{
         <div className="flex flex-col h-full justify-center w-full">
 
           <div className="flex pl-5">
-            {selectedUser?.id && (
+            {selectedUser?.clerkId && (
               <div className="flex justify-between items-center w-full ">
                 <h3 className="font-bold">{selectedUser?.username}</h3>
                 <div className="flex">
@@ -346,7 +345,7 @@ const screenShare = ()=>{
         </div>
       </div>
       <div className="h-[100%]" style={{ gridArea: "main", overflowY: "auto" }}>
-        {selectedUser.id ? (
+        {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
             return (
@@ -376,7 +375,7 @@ const screenShare = ()=>{
           </div>
         )}
       </div>
-      {selectedUser.id && (
+      {selectedUser.clerkId && (
         <div
           style={{
             gridArea: "foot",

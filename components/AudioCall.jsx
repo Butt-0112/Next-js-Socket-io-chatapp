@@ -4,15 +4,9 @@ import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle }
 import { Import, Loader2, Mic, Phone, User2, UserCircle, Video } from 'lucide-react'
 import { Button } from './ui/button'
 import '../css/videoaudio.css'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+import { AspectRatio } from "@/components/ui/aspect-ratio"
+
+const AudioCall = ({ stream, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -22,7 +16,8 @@ const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, local
   const mainaudioRef = useRef(null)
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
- 
+  const ringtoneRef = useRef(null)
+const [ringtoneAudio] = useState(new Audio())
   useEffect(() => {
     console.log(isScreenSharing)
     if (audioRef.current && stream) {
@@ -39,7 +34,7 @@ const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, local
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream,isScreenSharing, localStream, selected])
+  }, [stream, isScreenSharing, localStream, selected])
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -51,8 +46,8 @@ const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, local
       fetchUser()
     }
   }, [peerID])
-
  
+
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
@@ -61,53 +56,57 @@ const AudioCall = ({ stream,screenShare,isScreenSharing,  incomingVidCall, local
   return (
 
 
-    <div className=''>
-{incomingCall&& <audio className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
-{isCalling&& <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
-     
+    <div className='max-w-screen-lg '>
+      {incomingCall && <audio ref={ringtoneRef} className='hidden' autoPlay loop src='/audio/ringtone.mp3' /> }
+ 
+      {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
+
       <Card className='px-2 py-2 h-full'>
-         {stream && hasVideo ? <div className='flex py-2'>
-          <div className="max-w-52 video-container cursor-pointer">
+        {stream && hasVideo ? <div className='flex justify-center '>
 
-          <video onContextMenu={(e) => { e.preventDefault() }}  onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`video-element rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
+          <div className='relative'>
+            <span className='absolute flex justify-center items-center font-semibold bg-[#00000082] inset-0'>
+
+              {user.username}
+            </span>
+
+            <video onContextMenu={(e) => { e.preventDefault() }} onClick={() => { setSelected(peerID) }} ref={audioRef} autoPlay className={`object-cover cursor-pointer size-20 rounded-lg ${selected === peerID && 'border border-white'}`} ></video>
           </div>
-          <div className="max-w-52 video-container cursor-pointer">
+          <div className='relative'>
+            <span className='absolute flex justify-center items-center font-semibold bg-[#00000082] inset-0'>
 
-          <video onContextMenu={(e) => { e.preventDefault() }} muted onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`video-element rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
+              You
+            </span>
+
+            <video onContextMenu={(e) => { e.preventDefault() }} muted onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`object-cover cursor-pointer size-20 rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
           </div>
-
         </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
-
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
- 
-
           {stream && hasVideo ?
             (
-              <div className='max-w-[416px]  max-h-[311px]'>
+              <div className='max-h-[70vh]'>
                 {
                   selected === userID ?
-                  <div className="video-container">
-
-                    <video onContextMenu={(e) => { e.preventDefault() }}  ref={mainlocalVidRef} autoPlay muted className={`video-element rounded-lg  `}  ></video>
-                  </div>
+                    <div className=" ">
+                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainlocalVidRef} autoPlay muted className={`rounded-lg max-h-[70vh] aspect-video`}  ></video>
+                    </div>
                     :
-                    <div className='video-container'>
-
-                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainaudioRef} autoPlay muted className={`video-element rounded-lg  `} ></video>
+                    <div className="">
+                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainaudioRef} autoPlay muted className={`rounded-lg max-h-[70vh] aspect-video`} ></video>
                     </div>
                 }
               </div>
             )
             : <div className="flex gap-2 h-40 justify-center flex-col items-center ">
-              <CardTitle className='bg-green-500 animate-pulse px-2 py-2 rounded-lg'>
-                {incomingCall&& `Incoming ${callType} call`}
-                {isCalling&& `Calling`}
-              </CardTitle>
+              {(incomingCall || isCalling) && <CardTitle className='bg-green-500 animate-pulse px-2 py-2 rounded-lg'>
+                {incomingCall && `Incoming ${callType} call`}
+                {isCalling && `Calling`}
+              </CardTitle>}
               <UserCircle size={60} />
               <CardTitle className='text-2xl'>
 
-                {isLoading ? <Loader2 className='animate-spin' /> :  user?.username ||user?.firstName ||user?.email}
+                {isLoading ? <Loader2 className='animate-spin' /> : user?.username || user?.firstName || user?.email}
               </CardTitle>
             </div>}
 
