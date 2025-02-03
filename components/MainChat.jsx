@@ -12,14 +12,31 @@ import {
   Video,
 
 } from "lucide-react";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
 import AudioCall from "./AudioCall";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "./ui/context-menu"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Label } from "./ui/label";
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
-const fetchUsers = async()=>{
-  const res = await fetch(`/api/users/user`,{
-    method:"GET"
+const fetchUsers = async () => {
+  const res = await fetch(`/api/users/user`, {
+    method: "GET"
   })
-  
+
   return await res.json()
 }
 
@@ -34,9 +51,11 @@ const MainChat = () => {
     user,
     messages,
     setMessages,
+    deleteMessage
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [selectedMessage,setSelectedMessage] = useState(null)
   // const [messages,setMessages] = useState([])
   const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
@@ -55,7 +74,9 @@ const MainChat = () => {
   const [isRndSelected, setIsRndSelected] = useState(true);
   const [windowSize, setWindowSize] = useState({ width: 280, height: 245 });
   const windowRef = useRef(null);
-  const [isScreenSharing,setIsScreenSharing] = useState(false)
+  const [isScreenSharing, setIsScreenSharing] = useState(false)
+  const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
+  const [deleteFor,setDeleteFor] = useState('forme')
   const onMessage = async () => {
     if (message.length > 0) {
       if (selectedUser) {
@@ -69,6 +90,10 @@ const MainChat = () => {
       }
     }
   };
+  const handleCloseDialog= ()=>{
+    setIsDeletionDialogOpen(false)
+    setSelectedMessage(null)
+  }
   const handleEnterPress = (e) => {
     if (e.key === "Enter" || e.keyCode === 13) {
       // Check if "Enter" is pressed
@@ -122,6 +147,32 @@ const MainChat = () => {
       setIsScreenSharing(false)
     }
   };
+  const handleMessageDelete = async (messageId) => {
+    if (!messageId) return
+    // setIsDeletionDialogOpen(true)
+    if(deleteFor==='foreveryone'){
+
+      await deleteMessage(messageId)
+      const updatedMessages = messages.filter(msg => msg._id !== messageId)
+      setMessages(updatedMessages)
+      if (socket) {
+        console.log('attempting to delete', messageId)
+        socket.emit('message-deleted', { messageId, to: selectedUser.clerkId })
+      }
+    }else{
+      const response = await fetch(`${API_BASE_URL}/api/messaging/deleteForMe`,{
+      method:'POST',
+      headers:{
+      'Content-Type':'application/json'
+      },
+      body:JSON.stringify({messageId,userId:user?.id})
+      })
+      if(response.ok){
+        const updatedMessages = messages.filter(msg => msg._id !== messageId)
+      setMessages(updatedMessages)
+      }
+    }
+  }
   useEffect(() => {
     const fetchDevices = async () => {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -154,7 +205,7 @@ const MainChat = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("token"),
+
         },
         body: JSON.stringify({
           from: user.id,
@@ -163,7 +214,9 @@ const MainChat = () => {
       });
       if (response.ok) {
         const json = await response.json();
-        setMessages(json);
+        const filteredMessages = json.filter(msg=>msg.deletedBy[0]!==user?.id)
+
+        setMessages(filteredMessages);
       }
     };
     if (selectedUser && selectedUser.clerkId && user && user.id) {
@@ -174,20 +227,21 @@ const MainChat = () => {
       fetchdata();
     }
   }, [selectedUser, user]);
-const screenShare = ()=>{
-  navigator.mediaDevices.getDisplayMedia({video:true,audio:true}).then((localStream)=>{
+  useEffect(() => { console.log(messages) }, [messages])
+  const screenShare = () => {
+    navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).then((localStream) => {
 
-    const call =   userPeer.call(clientPeer,localStream,{metadata:{type:'sharedisplay'}})
-    call.on("stream", (remoteStream)=>{
-      remoteStreamRef.current = remoteStream
+      const call = userPeer.call(clientPeer, localStream, { metadata: { type: 'sharedisplay' } })
+      call.on("stream", (remoteStream) => {
+        remoteStreamRef.current = remoteStream
+      })
+
     })
-    
-  })
-}
+  }
   useEffect(() => {
     if (socket) {
       socket.on("incoming-call", ({ from, to, type }) => {
-       
+
         setClientPeer(from);
         setIncomingCall(true);
         setCallType(type)
@@ -202,6 +256,13 @@ const screenShare = ()=>{
         setIsRndSelected(true);
         remoteStreamRef.current = null
 
+      })
+      socket.on('message-deleted', ({ messageId }) => {
+        console.log(messageId, ' got the messageId in recevier')
+        console.log(messages, ' messages')
+        const updatedMessages = messages.filter(msg => msg._id !== messageId)
+        console.log(updatedMessages)
+        setMessages(updatedMessages)
       })
       socket.on("call-ended-from", ({ to }) => {
         setCallEnded(true);
@@ -236,17 +297,17 @@ const screenShare = ()=>{
 
       userPeer.on("call", (call) => {
         const callType = call.metadata.type
-       
+
         try {
           // if(callType==='sharedisplay'){
           //   console.log('in share display')
-              
+
           //     call.on("stream" , (remoteStream)=>{
           //       console.log('setting display stream ')
           //       remoteStreamRef.current = remoteStream
-                
+
           //     })
-           
+
           // }else{
           navigator.mediaDevices
             .getUserMedia(callType === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
@@ -259,21 +320,20 @@ const screenShare = ()=>{
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
                 console.log("received remote stream", remoteStream.id);
-                if(callType==='sharedisplay')
-                  {
-                setIsScreenSharing(true)
-          
-                  }
+                if (callType === 'sharedisplay') {
+                  setIsScreenSharing(true)
+
+                }
               });
             });
           // }
         } catch (e) {
           console.error(e);
         }
-      
+
       });
     }
-  }, [socket]);
+  }, [socket, messages]);
 
   const handleRndClick = (e) => {
     // e.stopPropagation();
@@ -294,7 +354,9 @@ const screenShare = ()=>{
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [streamingCall]);
-
+useEffect(()=>{
+  console.log(deleteFor)
+},[deleteFor])
   return (
     <div
       className=" h-[100vh]"
@@ -349,6 +411,7 @@ const screenShare = ()=>{
           messages.length > 0 &&
           messages.map((message, index) => {
             return (
+
               <div
                 className={`${message.from === user.id
                   ? "bg-slate-400 dark:bg-zinc-900"
@@ -365,7 +428,53 @@ const screenShare = ()=>{
                   whiteSpace: "pre-wrap",
                 }}
                 key={index + 1}
-              >{`${message.content}`}</div>
+              >
+                <ContextMenu>
+                  <ContextMenuTrigger onClick={()=>setSelectedMessage(message)}>{message.content}</ContextMenuTrigger>
+                  <ContextMenuContent>
+
+                    <ContextMenuItem
+                      onClick={() => {setIsDeletionDialogOpen(true);setSelectedMessage(message)}}
+                    >Delete</ContextMenuItem>
+
+                    <ContextMenuItem>Billing</ContextMenuItem>
+                    <ContextMenuItem>Team</ContextMenuItem>
+                    <ContextMenuItem>Subscription</ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+
+                <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
+
+                  <DialogTrigger asChild>
+                    {/* <Button variant="outline">Edit Profile</Button> */}
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Delete Message</DialogTitle>
+                      <DialogDescription>
+                        This will delete the selected message and cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <RadioGroup defaultValue="forme" onValueChange={setDeleteFor}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem className='fill-red-500' value="forme" id="r1" />
+                        <Label htmlFor="r1">Delete for me</Label>
+                      </div>
+                      
+                     {selectedMessage?.from===user.id&& <div className="flex items-center space-x-2">
+                        <RadioGroupItem  className='fill-red-500' value="foreveryone" id="r2" />
+                        <Label htmlFor="r2">Delete for Everyone</Label>
+                      </div>}
+                    </RadioGroup>
+
+                    <DialogFooter>
+                      <Button type="submit" className='bg-red-600 text-white hover:bg-red-700' onClick={() => { setIsDeletionDialogOpen(false); handleMessageDelete(message._id) }}>Delete</Button>
+                    </DialogFooter>
+                  </DialogContent>
+
+
+                </Dialog>
+              </div>
             );
           })
         ) : (

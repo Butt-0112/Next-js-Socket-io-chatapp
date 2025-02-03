@@ -21,7 +21,7 @@ import {
 import { context } from "@/context/context"
 import { useContext, useEffect, useState, useCallback } from "react"
 import { Input } from "./ui/input"
-import { Contact, Loader2, PlusCircleIcon, X } from "lucide-react"
+import { Contact, Loader2, PlusCircleIcon, Trash2, X } from "lucide-react"
 import { Button } from "./ui/button"
 import SidebarSkeleton from "./SidebarSkeleton"
 import Link from "next/link"
@@ -124,13 +124,36 @@ export default function AppSidebar() {
     if (response.ok) {
 
       const json = await response.json()
-      const contact = json.contact
+      const contacts = json.contacts
+      setContacts(contacts)
 
       // setUser(contact)
       setShowLoader({ id: user.id, val: false })
 
     }
   }
+  const deleteContact = async(contact)=>{
+    const response = await fetch(`${API_BASE_URL}/api/users/deleteContact`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+
+      },
+      body: JSON.stringify({
+        contactID: contact.clerkId,
+        userId: user.id
+      })
+    })
+    if (response.ok) {
+
+      const json = await response.json()
+      const contacts = json.contacts
+      setContacts(contacts)
+
+      
+    }
+ 
+ }
   useEffect(() => {
     console.log(selectedUser)
   }, [selectedUser])
@@ -148,29 +171,7 @@ export default function AppSidebar() {
           {query.trim() !== '' && <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {/* {users.length > 0?  users.map((fil_user) => (
-                                 <SidebarMenuItem key={user.id}>
-                                  
-                                    <SidebarMenuButton className='h-full'>
-                                        <div className="flex items-center gap-3 w-full">
-                                              
-                                        <Avatar> 
-                                             <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                                             <AvatarFallback>CN</AvatarFallback>
-                                           </Avatar> 
-                                        {fil_user.username || fil_user.email}
-                                     
-                                        {user.contacts?.filter(contact_user=>fil_user._id===contact_user.userID).length>0?
-                                        
-                                        
-
-                                        <X />:showLoader.id===fil_user._id&&showLoader.val?<Loader2 className="animate-spin"  />:
-                                        <PlusCircleIcon  onClick={async(e)=> {e.preventDefault();await handleAddContact(fil_user)}} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
-                                        }
-                                        </div>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )):<p>No results found!</p>} */}
+ 
                 {query.trim().length < 3 ?
                   <p>please enter at least 3 characters to start searching</p>
                   :
@@ -187,15 +188,26 @@ export default function AppSidebar() {
                             <span>{user.username || user.email}</span>
                           </div>
                           <TooltipProvider>
+                          {contacts.some(e=>e.clerkId===user.id)   ? 
                             <Tooltip>
                               <TooltipTrigger>
 
-                                <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
-                              </TooltipTrigger>
+                               <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                                </TooltipTrigger>
                               <TooltipContent>
-                                <p>Add to contacts</p>
+                                <p>remove from contacts</p>
                               </TooltipContent>
                             </Tooltip>
+                            :   <Tooltip>
+                            <TooltipTrigger>
+
+                               <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
+                          </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Add to contacts</p>
+                            </TooltipContent>
+                          </Tooltip>
+                            }  
                           </TooltipProvider>
                         </div>
                       </SidebarMenuItem>
@@ -208,20 +220,34 @@ export default function AppSidebar() {
           <SidebarGroup>
             <h3 className="font-semibold text-sm">Contacts</h3>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu >
                 {contacts && contacts.length > 0 ?contacts.map((user, index) => {
-                  return <SidebarMenuItem key={index}>
-                    <SidebarMenuButton className='h-full' onClick={(e) => { e.preventDefault(); setSelectedUser(user); isMobile && toggleSidebar() }}>
+                  return <SidebarMenuItem onClick={()=>setSelectedUser(user)}  key={user.clerkId} className="flex hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
+                  <div id="user-item" className='h-full w-full flex justify-between'>
+                    <div className="w-full flex items-center gap-2">
+
                       <Avatar>
                         <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
                       </Avatar>
-                      <span>
+                      <span>{user.username || user.email}</span>
+                    </div>
+                    <TooltipProvider> 
+                      <Tooltip>
+                        <TooltipTrigger>
 
-                        {user.username || user.email}
-                      </span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                         <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                          </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">
+
+                           delete contact 
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                     </TooltipProvider>
+                  </div>
+                </SidebarMenuItem>
                 }) : <p>No contacts found</p>}
               </SidebarMenu>
             </SidebarGroupContent>

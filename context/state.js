@@ -99,7 +99,23 @@ const StateProvider = ({ children }) => {
     }
     fetchdata()
   }, [user])
+  const deleteMessage = async(messageId)=>{
+    const response = await fetch(`${API_BASE_URL}/api/messaging/deleteMessage`,{
+      method:"DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body:JSON.stringify({
+        messageId
+      })
+    })
+    if(response.ok){
 
+      const json = await response.json()
+      return json.msg
+    }
+    
+  }
   useEffect(()=>{
     if(!socket)return
     if(!userPeer)return
@@ -119,7 +135,7 @@ const StateProvider = ({ children }) => {
     // });
 
   },[socket,userPeer,stream])
-  return <context.Provider value={{userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
+  return <context.Provider value={{deleteMessage,userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
     {children}
   </context.Provider>
 }

@@ -12,3 +12,12 @@
     height: 100%;
     object-fit: cover; /* Maintain aspect ratio of the video content */
   }
+  #del-icon{
+    display: none;
+  }
+  #user-item:hover #del-icon{
+    display: block;
+  }
+
+
+  
