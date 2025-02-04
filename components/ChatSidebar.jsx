@@ -188,7 +188,7 @@ export default function AppSidebar() {
                             <span>{user.username || user.email}</span>
                           </div>
                           <TooltipProvider>
-                          {contacts.some(e=>e.clerkId===user.id)   ? 
+                          {contacts&&contacts.length>7&&contacts.some(e=>e.clerkId===user.id)   ? 
                             <Tooltip>
                               <TooltipTrigger>
 
