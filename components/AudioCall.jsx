@@ -1,12 +1,12 @@
 import { context } from '@/context/context'
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Import, Loader2, Mic, Phone, User2, UserCircle, Video } from 'lucide-react'
+import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video } from 'lucide-react'
 import { Button } from './ui/button'
 import '../css/videoaudio.css'
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
-const AudioCall = ({ stream, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,muted,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -17,11 +17,26 @@ const AudioCall = ({ stream, screenShare, isScreenSharing, incomingVidCall, loca
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
   const ringtoneRef = useRef(null)
+  const [mutedbyme,setMutedByMe] = useState(false)
 const [ringtoneAudio] = useState(new Audio())
   useEffect(() => {
     console.log(isScreenSharing)
     if (audioRef.current && stream) {
-      audioRef.current.srcObject = stream
+      if(muted){
+        console.log(stream, ' prev stream',stream.getAudioTracks())
+        stream.getAudioTracks().forEach(track=> {
+          track.enabled = !track.enabled
+          console.log('setting muted stream')
+        });
+        audioRef.current.srcObject = stream
+      }else{
+        stream.getAudioTracks().forEach(track=> {
+          console.log('setting new stream')
+          track.enabled = true
+        });
+
+        audioRef.current.srcObject = stream
+      }
     }
     if (localVidRef.current && localStream) {
       localVidRef.current.srcObject = localStream
@@ -34,7 +49,7 @@ const [ringtoneAudio] = useState(new Audio())
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream, isScreenSharing, localStream, selected])
+  }, [stream, isScreenSharing, localStream, selected,muted])
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -53,6 +68,13 @@ const [ringtoneAudio] = useState(new Audio())
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
+  useEffect(()=>{
+    console.log(muted)
+    if(audioRef.current){
+      audioRef.current.muted=muted
+      console.log('set muted')
+    }
+  },[muted])
   return (
 
 
@@ -80,7 +102,7 @@ const [ringtoneAudio] = useState(new Audio())
 
             <video onContextMenu={(e) => { e.preventDefault() }} muted onClick={() => { setSelected(userID) }} ref={localVidRef} autoPlay className={`object-cover cursor-pointer size-20 rounded-lg ${selected === userID && 'border border-white'}`}  ></video>
           </div>
-        </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
+        </div> : stream && <audio  ref={audioRef} autoPlay className='hidden'></audio>}
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
           {stream && hasVideo ?
@@ -120,10 +142,17 @@ const [ringtoneAudio] = useState(new Audio())
 
             <Video size={25} />
           </button>
-          <button disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+            {mutedbyme?
+          <button disabled={isCalling} onClick={()=>{ setMutedByMe(false);handleUnmute()}} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
-            <Mic size={25} />
+            <MicOff size={25}  />
           </button>
+
+            :  <button disabled={isCalling} onClick={()=>{handleMute(); setMutedByMe(true)}} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+
+            <Mic size={25}  />
+              </button>
+          }
           <button onClick={hangUp} className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-700">
             <Phone style={{ rotate: '135deg' }} />
           </button>

@@ -82,11 +82,11 @@ const StateProvider = ({ children }) => {
           setUsers(users)
         })
 
-        socket.on("private message", async ({ content, from }) => {
+        socket.on("private message", async ({ content, from,_id }) => {
 
 
-          setMessages((prev) => [...prev, { content: content, from }])
-
+          setMessages((prev) => [...prev, { content: content, from ,_id}])
+          socket.emit('message-delivered',{messageId:_id, delivered:true})
 
         });
         socket.on("user connected", (user) => {

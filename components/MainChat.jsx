@@ -56,7 +56,7 @@ const MainChat = () => {
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [selectedMessage,setSelectedMessage] = useState(null)
-  // const [messages,setMessages] = useState([])
+  const [muted,setMuted] = useState(false)
   const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
@@ -78,18 +78,31 @@ const MainChat = () => {
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
   const [deleteFor,setDeleteFor] = useState('forme')
   const onMessage = async () => {
-    if (message.length > 0) {
+    if (message.trim()!==''&&message.length > 0) {
       if (selectedUser) {
         console.log(selectedUser);
         socket.emit("private message", {
           content: message,
           to: selectedUser.clerkId,
         });
-        setMessages((prev) => [...prev, { content: message, from: user.id }]);
+        // setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
+        setSelectedMessage(null)
       }
     }
   };
+  const handleMute = ()=>{
+    // setMuted(true)
+    if(socket){
+      socket.emit('muted',{to:clientPeer,muted:true})
+    }
+  }
+  const handleUnmute = ()=>{
+    // setMuted(true)
+    if(socket){
+      socket.emit('muted',{to:clientPeer,muted:false})
+    }
+  }
   const handleCloseDialog= ()=>{
     setIsDeletionDialogOpen(false)
     setSelectedMessage(null)
@@ -257,6 +270,10 @@ const MainChat = () => {
         remoteStreamRef.current = null
 
       })
+      socket.on('muted',({muted})=>{
+        console.log(muted,' in receiver')
+        setMuted(muted)
+      })
       socket.on('message-deleted', ({ messageId }) => {
         console.log(messageId, ' got the messageId in recevier')
         console.log(messages, ' messages')
@@ -299,16 +316,7 @@ const MainChat = () => {
         const callType = call.metadata.type
 
         try {
-          // if(callType==='sharedisplay'){
-          //   console.log('in share display')
-
-          //     call.on("stream" , (remoteStream)=>{
-          //       console.log('setting display stream ')
-          //       remoteStreamRef.current = remoteStream
-
-          //     })
-
-          // }else{
+          
           navigator.mediaDevices
             .getUserMedia(callType === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
             .then((localStream) => {
@@ -354,9 +362,11 @@ const MainChat = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [streamingCall]);
-useEffect(()=>{
-  console.log(deleteFor)
-},[deleteFor])
+  const handleEditMessage = async(message)=>{
+    // await deleteMessage(message)
+    setMessage(message.content)
+
+  }
   return (
     <div
       className=" h-[100vh]"
@@ -437,9 +447,8 @@ useEffect(()=>{
                       onClick={() => {setIsDeletionDialogOpen(true);setSelectedMessage(message)}}
                     >Delete</ContextMenuItem>
 
-                    <ContextMenuItem>Billing</ContextMenuItem>
-                    <ContextMenuItem>Team</ContextMenuItem>
-                    <ContextMenuItem>Subscription</ContextMenuItem>
+                  {message.from===user.id&&  <ContextMenuItem onClick={()=>{handleEditMessage(message)}} >Edit</ContextMenuItem>}
+                    
                   </ContextMenuContent>
                 </ContextMenu>
 
@@ -549,6 +558,9 @@ useEffect(()=>{
                 localStream={localStreamRef.current}
                 screenShare={screenShare}
                 isScreenSharing={isScreenSharing}
+                handleMute={handleMute}
+                handleUnmute={handleUnmute}
+                muted={muted}
               />
             }
           </div>
