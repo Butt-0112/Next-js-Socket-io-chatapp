@@ -41,8 +41,11 @@ const StateProvider = ({ children }) => {
       if(user){
 
         const token = await getFCMToken()
+        if(token){
+
+          await sendTokenToServer(token)
+        }
         console.log('token gen', token)
-        await sendTokenToServer(token)
       }
     } else if (permission === 'denied') {
       // alert('you denied for the permission')
