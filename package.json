@@ -28,6 +28,7 @@
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
     "express-validator": "^7.2.0",
+    "firebase": "^11.2.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.459.0",
     "next": "15.0.3",

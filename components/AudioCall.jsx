@@ -1,12 +1,12 @@
 import { context } from '@/context/context'
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video } from 'lucide-react'
+import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video, VideoOff } from 'lucide-react'
 import { Button } from './ui/button'
 import '../css/videoaudio.css'
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
-const AudioCall = ({ stream,muted,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,muted,ToggleVideo, videoDisabled,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -18,6 +18,7 @@ const AudioCall = ({ stream,muted,handleMute,handleUnmute, screenShare, isScreen
   const localVidRef = useRef(null)
   const ringtoneRef = useRef(null)
   const [mutedbyme,setMutedByMe] = useState(false)
+  const [toggleVid,setToggleVid] = useState(false)
 const [ringtoneAudio] = useState(new Audio())
   useEffect(() => {
     console.log(isScreenSharing)
@@ -28,15 +29,26 @@ const [ringtoneAudio] = useState(new Audio())
           track.enabled = !track.enabled
           console.log('setting muted stream')
         });
-        audioRef.current.srcObject = stream
+        
+     
       }else{
         stream.getAudioTracks().forEach(track=> {
           console.log('setting new stream')
           track.enabled = true
         });
 
-        audioRef.current.srcObject = stream
       }
+      if(videoDisabled){
+        stream.getVideoTracks().forEach(track=> {
+          track.enabled = !track.enabled 
+        });
+        
+      }else{
+        stream.getVideoTracks().forEach(track=> {
+          track.enabled = true 
+        });
+      }
+      audioRef.current.srcObject = stream
     }
     if (localVidRef.current && localStream) {
       localVidRef.current.srcObject = localStream
@@ -49,7 +61,7 @@ const [ringtoneAudio] = useState(new Audio())
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream, isScreenSharing, localStream, selected,muted])
+  }, [stream, isScreenSharing, localStream, selected,muted,videoDisabled])
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -62,7 +74,9 @@ const [ringtoneAudio] = useState(new Audio())
     }
   }, [peerID])
  
-
+const toggleVideoStream = ()=>{
+  setToggleVid(!toggleVid)
+}
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
@@ -138,10 +152,22 @@ const [ringtoneAudio] = useState(new Audio())
 
             <Import className='rotate-180' size={25} />
           </button>
-          <button onClick={sendVidCallInvite} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+         {stream&&hasVideo? !toggleVid? 
+         <button onClick={()=>{toggleVideoStream();ToggleVideo()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <Video size={25} />
           </button>
+          :
+         <button onClick={()=>{toggleVideoStream();ToggleVideo()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+
+            <VideoOff size={25} />
+          </button>
+          :
+         <button onClick={()=>{sendVidCallInvite}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+
+            <Video size={25} />
+          </button>
+          }
             {mutedbyme?
           <button disabled={isCalling} onClick={()=>{ setMutedByMe(false);handleUnmute()}} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 

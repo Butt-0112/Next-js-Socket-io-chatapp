@@ -51,12 +51,14 @@ const MainChat = () => {
     user,
     messages,
     setMessages,
-    deleteMessage
+    deleteMessage,
+    fetchUserById
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [selectedMessage,setSelectedMessage] = useState(null)
   const [muted,setMuted] = useState(false)
+  const [videoDisabled, setVideoDisabled] = useState(false)
   const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
@@ -98,10 +100,16 @@ const MainChat = () => {
     }
   }
   const handleUnmute = ()=>{
-    // setMuted(true)
+   
     if(socket){
       socket.emit('muted',{to:clientPeer,muted:false})
     }
+  }
+  const ToggleVideo = ()=>{
+    setVideoDisabled(!videoDisabled)
+    if(socket)[
+      socket.emit('video-status',{status: !videoDisabled,to:clientPeer})
+    ]
   }
   const handleCloseDialog= ()=>{
     setIsDeletionDialogOpen(false)
@@ -126,14 +134,10 @@ const MainChat = () => {
       setCallingToPeer(true);
     }
   };
-  const sendVidCallInvite = () => {
-    if (!clientPeer) {
-      setClientPeer(selectedUser?.clerkId)
-    }
-    if (socket) {
-      socket.emit("vid-call", { from: user?.id, to: !clientPeer ? selectedUser?.clerkId : clientPeer })
-      setVidCalling(true)
-    }
+  const sendVidCallInvite =  () => {
+      hangUpCall()
+      sendCall('video')
+
   }
   const AnswerCall = (type) => {
     if (socket) {
@@ -145,7 +149,12 @@ const MainChat = () => {
       socket.emit("answer-vid-call", { from: user?.id, to: clientPeer });
     }
   };
-
+  useEffect(() => {
+    // Request notification permission on component mount
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+  }, []);
   const hangUpCall = () => {
     if (socket) {
       console.log(clientPeer);
@@ -251,10 +260,23 @@ const MainChat = () => {
 
     })
   }
+  const showNotificationIncomingCall = (title) => {
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification(title, {
+ 
+          actions: [{ action: 'decline', title: 'Decline' },{action:'answer',title:'Answer'}],
+          
+        });
+      });
+    }
+  };
   useEffect(() => {
     if (socket) {
-      socket.on("incoming-call", ({ from, to, type }) => {
-
+      socket.on("incoming-call", async({ from, to, type }) => {
+        const _from = await fetchUserById(from)
+        console.log(_from)
+        showNotificationIncomingCall(`Incoming call from ${_from.username}`)
         setClientPeer(from);
         setIncomingCall(true);
         setCallType(type)
@@ -273,6 +295,10 @@ const MainChat = () => {
       socket.on('muted',({muted})=>{
         console.log(muted,' in receiver')
         setMuted(muted)
+      })
+      socket.on('video-status',({status})=>{
+        console.log(status,' in receiver')
+        setVideoDisabled(status)
       })
       socket.on('message-deleted', ({ messageId }) => {
         console.log(messageId, ' got the messageId in recevier')
@@ -561,6 +587,8 @@ const MainChat = () => {
                 handleMute={handleMute}
                 handleUnmute={handleUnmute}
                 muted={muted}
+                ToggleVideo={ToggleVideo}
+                videoDisabled={videoDisabled}
               />
             }
           </div>

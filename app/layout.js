@@ -6,7 +6,7 @@ import StateProvider from "@/context/state";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/ChatSidebar";
 import { usePathname } from 'next/navigation'; // Import the hook to get the current path
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
 const geistSans = localFont({
@@ -22,15 +22,14 @@ const geistMono = localFont({
 
 
 
+
 export default function RootLayout({ children }) {
   const [isOpen, setIsOpen] = useState(true)
   const pathname = usePathname(); // Get the current path
 
-  // List of routes where the sidebar should be hidden
+  // List of routes where the sidebar should be hidden 
   const noSidebarRoutes = ['/login', '/signup'];
-useEffect(()=>{
-  console.log(isOpen)
-},[isOpen])
+ 
   const showSidebar = !noSidebarRoutes.includes(pathname);
   return (
     <ClerkProvider appearance={{

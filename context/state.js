@@ -1,10 +1,12 @@
 "use client"
 import { useEffect, useId, useState } from "react";
 import { context } from "./context";
-import { io } from "socket.io-client";
+import { connect, io } from "socket.io-client";
 import { decryptMessage, decryptPrivateKey } from "@/app/encryption/encryptionUtils";
 import { useNavigate, useNavigation } from "react-router-dom";
 import { useRouter } from "next/navigation";
+import { getFCMToken } from "@/lib/firebase";
+ 
 import Peer from "peerjs";
 import { useUser } from "@clerk/nextjs";
 const StateProvider = ({ children }) => {
@@ -23,6 +25,34 @@ const StateProvider = ({ children }) => {
   const [peers, setPeers] = useState({});
   const [userchanged,setUserChanged] = useState(false)
   const {user} = useUser()
+  const sendTokenToServer = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/fcm/default-token`, {
+      method: 'POST',
+      body: JSON.stringify({ token ,clerkId:user.id}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+   const json = await response.json()
+  };
+  async function requestPermission() {
+    const permission = await Notification.requestPermission()
+    if (permission === 'granted') {
+      if(user){
+
+        const token = await getFCMToken()
+        console.log('token gen', token)
+        await sendTokenToServer(token)
+      }
+    } else if (permission === 'denied') {
+      // alert('you denied for the permission')
+    }
+  }
+  
+  useEffect(()=>{
+    requestPermission()
+    
+  },[user])
   const fetchUserById = async(id)=>{
     const response = await fetch(`${API_BASE_URL}/api/users/getUserbyId`, {
       method: "POST",
@@ -68,6 +98,17 @@ const StateProvider = ({ children }) => {
   useEffect(()=>{
     // setUser()
   },[])
+  const showNotification = (title, body, from) => {
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification(title, {
+          body,
+          actions: [{ action: 'reply', title: 'Reply' }],
+          data: { from }
+        });
+      });
+    }
+  };
   useEffect(() => {
     const fetchdata = async () => {
      
@@ -87,7 +128,10 @@ const StateProvider = ({ children }) => {
 
           setMessages((prev) => [...prev, { content: content, from ,_id}])
           socket.emit('message-delivered',{messageId:_id, delivered:true})
-
+          if(from!==user.id){
+            const _from = await fetchUserById(from)
+            showNotification(_from.username,content,_from.username)
+          }
         });
         socket.on("user connected", (user) => {
           setUsers(prev => [...prev, user])
