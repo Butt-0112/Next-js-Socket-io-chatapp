@@ -52,7 +52,9 @@ const MainChat = () => {
     messages,
     setMessages,
     deleteMessage,
-    fetchUserById
+    fetchUserById,
+    sendNotification,
+    getToken
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
@@ -90,6 +92,8 @@ const MainChat = () => {
         // setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
         setSelectedMessage(null)
+        const token = await getToken(selectedUser.clerkId)
+        sendNotification(token, user.username, message, 'http://localhost:3000/')
       }
     }
   };

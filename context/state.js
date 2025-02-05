@@ -95,9 +95,7 @@ const StateProvider = ({ children }) => {
   const getUsers = ({ roomId, participants }) => {
     console.log(participants, 'participants of room', roomId)
   }
-  useEffect(()=>{
-    // setUser()
-  },[])
+ 
   const showNotification = (title, body, from) => {
     if (Notification.permission === 'granted') {
       navigator.serviceWorker.ready.then(function(registration) {
@@ -128,10 +126,7 @@ const StateProvider = ({ children }) => {
 
           setMessages((prev) => [...prev, { content: content, from ,_id}])
           socket.emit('message-delivered',{messageId:_id, delivered:true})
-          if(from!==user.id){
-            const _from = await fetchUserById(from)
-            showNotification(_from.username,content,_from.username)
-          }
+           
         });
         socket.on("user connected", (user) => {
           setUsers(prev => [...prev, user])
@@ -179,7 +174,33 @@ const StateProvider = ({ children }) => {
     // });
 
   },[socket,userPeer,stream])
-  return <context.Provider value={{deleteMessage,userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
+  const sendNotification =  async(token,title,body,url)=>{
+    const response = await fetch(`${API_BASE_URL}/api/fcm/send-notification`,{
+    method:'POST',
+    headers:{
+    'Content-Type':'application/json'
+    },
+    body:JSON.stringify({
+      token,title,body,url
+    })
+    })
+    const json = await response.json()
+    return json
+    
+  }
+  const getToken = async(clerkId)=>{
+    const response = await fetch(`${API_BASE_URL}/api/fcm/getToken`,{
+    method:'POST',
+    headers:{
+    'Content-Type':'application/json'
+    },
+    body:JSON.stringify({clerkId})
+    })
+    const json  = await response.json()
+    const token = json.token
+    return token
+  }
+  return <context.Provider value={{getToken,sendNotification,deleteMessage,userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
     {children}
   </context.Provider>
 }
