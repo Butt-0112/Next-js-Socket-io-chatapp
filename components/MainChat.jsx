@@ -92,8 +92,13 @@ const MainChat = () => {
         // setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
         setSelectedMessage(null)
-        const token = await getToken(selectedUser.clerkId)
-        sendNotification(token, user.username, message, 'http://localhost:3000/')
+        try {
+          
+          const token = await getToken(selectedUser.clerkId)
+          sendNotification(token, user.username, message, 'http://localhost:3000/')
+        } catch (error) {
+          console.log('an error occured')
+        }
       }
     }
   };
