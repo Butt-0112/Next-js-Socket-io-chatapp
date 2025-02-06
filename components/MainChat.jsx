@@ -81,10 +81,10 @@ const MainChat = () => {
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
   const [deleteFor,setDeleteFor] = useState('forme')
+  const messageContainerRef= useRef(null)
   const onMessage = async () => {
     if (message.trim()!==''&&message.length > 0) {
       if (selectedUser) {
-        console.log(selectedUser);
         socket.emit("private message", {
           content: message,
           to: selectedUser.clerkId,
@@ -102,6 +102,12 @@ const MainChat = () => {
       }
     }
   };
+  useEffect(() => {
+    // Scroll to the bottom whenever messages change
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
   const handleMute = ()=>{
     // setMuted(true)
     if(socket){
@@ -179,7 +185,11 @@ const MainChat = () => {
     }
   };
   const handleMessageDelete = async (messageId) => {
-    if (!messageId) return
+    if (!messageId){
+      console.log('returning') 
+      return
+    } 
+      
     // setIsDeletionDialogOpen(true)
     if(deleteFor==='foreveryone'){
 
@@ -258,7 +268,7 @@ const MainChat = () => {
       fetchdata();
     }
   }, [selectedUser, user]);
-  useEffect(() => { console.log(messages) }, [messages])
+  
   const screenShare = () => {
     navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).then((localStream) => {
 
@@ -311,9 +321,9 @@ const MainChat = () => {
       })
       socket.on('message-deleted', ({ messageId }) => {
         console.log(messageId, ' got the messageId in recevier')
-        console.log(messages, ' messages')
+       
         const updatedMessages = messages.filter(msg => msg._id !== messageId)
-        console.log(updatedMessages)
+     
         setMessages(updatedMessages)
       })
       socket.on("call-ended-from", ({ to }) => {
@@ -402,6 +412,7 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
+  useEffect(()=>console.log(selectedMessage),[selectedMessage])
   return (
     <div
       className=" h-[100vh]"
@@ -451,7 +462,7 @@ const MainChat = () => {
 
         </div>
       </div>
-      <div className="h-[100%]" style={{ gridArea: "main", overflowY: "auto" }}>
+      <div className="h-[100%]" ref={messageContainerRef} style={{ gridArea: "main", overflowY: "auto" }}>
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
@@ -487,39 +498,9 @@ const MainChat = () => {
                   </ContextMenuContent>
                 </ContextMenu>
 
-                <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
-
-                  <DialogTrigger asChild>
-                    {/* <Button variant="outline">Edit Profile</Button> */}
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Delete Message</DialogTitle>
-                      <DialogDescription>
-                        This will delete the selected message and cannot be undone.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <RadioGroup defaultValue="forme" onValueChange={setDeleteFor}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem className='fill-red-500' value="forme" id="r1" />
-                        <Label htmlFor="r1">Delete for me</Label>
-                      </div>
-                      
-                     {selectedMessage?.from===user.id&& <div className="flex items-center space-x-2">
-                        <RadioGroupItem  className='fill-red-500' value="foreveryone" id="r2" />
-                        <Label htmlFor="r2">Delete for Everyone</Label>
-                      </div>}
-                    </RadioGroup>
-
-                    <DialogFooter>
-                      <Button type="submit" className='bg-red-600 text-white hover:bg-red-700' onClick={() => { setIsDeletionDialogOpen(false); handleMessageDelete(message._id) }}>Delete</Button>
-                    </DialogFooter>
-                  </DialogContent>
-
-
-                </Dialog>
               </div>
             );
+                
           })
         ) : (
           <div className="w-full select-none gap-2 flex justify-center h-full flex-col items-center">
@@ -562,7 +543,37 @@ const MainChat = () => {
         </div>
       )}
       <div></div>
+      <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
 
+<DialogTrigger asChild>
+  {/* <Button variant="outline">Edit Profile</Button> */}
+</DialogTrigger>
+<DialogContent className="sm:max-w-[425px]">
+  <DialogHeader>
+    <DialogTitle>Delete Message</DialogTitle>
+    <DialogDescription>
+      This will delete the selected message and cannot be undone.
+    </DialogDescription>
+  </DialogHeader>
+  <RadioGroup defaultValue="forme" onValueChange={setDeleteFor}>
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem className='fill-red-500' value="forme" id="r1" />
+      <Label htmlFor="r1">Delete for me</Label>
+    </div>
+    
+   {selectedMessage?.from===user?.id&& <div className="flex items-center space-x-2">
+      <RadioGroupItem  className='fill-red-500' value="foreveryone" id="r2" />
+      <Label htmlFor="r2">Delete for Everyone</Label>
+    </div>}
+  </RadioGroup>
+
+  <DialogFooter>
+    <Button type="submit" className='bg-red-600 text-white hover:bg-red-700' onClick={() => { setIsDeletionDialogOpen(false); handleMessageDelete(selectedMessage._id) }}>Delete</Button>
+  </DialogFooter>
+</DialogContent>
+
+
+</Dialog>
       {(streamingCall || incomingCall || callingToPeer) && (
         <div
           className={`absolute ${isRndSelected
