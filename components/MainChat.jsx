@@ -493,8 +493,8 @@ const MainChat = () => {
                       onClick={() => {setIsDeletionDialogOpen(true);setSelectedMessage(message)}}
                     >Delete</ContextMenuItem>
 
-                  {message.from===user.id&&  <ContextMenuItem onClick={()=>{handleEditMessage(message)}} >Edit</ContextMenuItem>}
-                    
+                  {/* {message.from===user.id&&  <ContextMenuItem onClick={()=>{handleEditMessage(message)}} >Edit</ContextMenuItem>}
+                     */}
                   </ContextMenuContent>
                 </ContextMenu>
 
