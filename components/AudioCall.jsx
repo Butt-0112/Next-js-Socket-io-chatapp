@@ -38,6 +38,13 @@ const [ringtoneAudio] = useState(new Audio())
         });
 
       }
+    
+      audioRef.current.srcObject = stream
+    }
+    if (localVidRef.current && localStream) {
+      localVidRef.current.srcObject = localStream
+    }
+    if (mainaudioRef.current && stream) {
       if(videoDisabled){
         stream.getVideoTracks().forEach(track=> {
           track.enabled = !track.enabled 
@@ -48,12 +55,6 @@ const [ringtoneAudio] = useState(new Audio())
           track.enabled = true 
         });
       }
-      audioRef.current.srcObject = stream
-    }
-    if (localVidRef.current && localStream) {
-      localVidRef.current.srcObject = localStream
-    }
-    if (mainaudioRef.current && stream) {
       mainaudioRef.current.srcObject = stream
     }
 
