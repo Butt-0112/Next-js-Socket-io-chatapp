@@ -10,7 +10,8 @@ const nextConfig = {
         NEXT_PUBLIC_STORAGE_BUCKET: "livechat-4ea6c.firebasestorage.app",
         NEXT_PUBLIC_MESSAGING_SENDER_ID: "148298278052",
         NEXT_PUBLIC_APP_ID: "1:148298278052:web:3147c31ee38c288eaa3231",
-        NEXT_PUBLIC_MEASUREMENT_ID: "G-KD8T2X94Z7"
+        NEXT_PUBLIC_MEASUREMENT_ID: "G-KD8T2X94Z7",
+        SECRET_KEY:"$2b$30$OhcFx2.wPW1BpiWsou0Hce"
     },
 };
 

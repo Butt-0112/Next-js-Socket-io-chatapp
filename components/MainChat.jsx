@@ -31,6 +31,7 @@ import {
 } from "./ui/context-menu"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
+import { decryptMessage, encryptMessage } from "@/lib/cryptoUtils/ucrypt";
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 const fetchUsers = async () => {
   const res = await fetch(`/api/users/user`, {
@@ -84,9 +85,10 @@ const MainChat = () => {
   const messageContainerRef= useRef(null)
   const onMessage = async () => {
     if (message.trim()!==''&&message.length > 0) {
+      const encryptedMessage = encryptMessage(message)
       if (selectedUser) {
         socket.emit("private message", {
-          content: message,
+          content: encryptedMessage,
           to: selectedUser.clerkId,
         });
         // setMessages((prev) => [...prev, { content: message, from: user.id }]);
@@ -472,6 +474,7 @@ const MainChat = () => {
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
+          const decryptedMessage = decryptMessage(message.content)
             return (
 
               <div
@@ -492,7 +495,7 @@ const MainChat = () => {
                 key={index + 1}
               >
                 <ContextMenu>
-                  <ContextMenuTrigger onClick={()=>setSelectedMessage(message)}>{message.content}</ContextMenuTrigger>
+                  <ContextMenuTrigger onClick={()=>setSelectedMessage(message)}>{decryptedMessage}</ContextMenuTrigger>
                   <ContextMenuContent>
 
                     <ContextMenuItem
