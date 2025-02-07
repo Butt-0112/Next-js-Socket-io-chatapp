@@ -6,7 +6,7 @@ import { Button } from './ui/button'
 import '../css/videoaudio.css'
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
-const AudioCall = ({ stream,muted,ToggleVideo, videoDisabled,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ stream,muted,EnableVid,DisableVid, videoDisabled,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const audioRef = useRef(null)
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -46,11 +46,13 @@ const [ringtoneAudio] = useState(new Audio())
     }
     if (mainaudioRef.current && stream) {
       if(videoDisabled){
+        console.log('disabling video')
         stream.getVideoTracks().forEach(track=> {
           track.enabled = !track.enabled 
         });
         
       }else{
+        console.log('enabling video')
         stream.getVideoTracks().forEach(track=> {
           track.enabled = true 
         });
@@ -154,12 +156,12 @@ const toggleVideoStream = ()=>{
             <Import className='rotate-180' size={25} />
           </button>
          {stream&&hasVideo? !toggleVid? 
-         <button onClick={()=>{toggleVideoStream();ToggleVideo()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+         <button onClick={()=>{toggleVideoStream();DisableVid()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <Video size={25} />
           </button>
           :
-         <button onClick={()=>{toggleVideoStream();ToggleVideo()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+         <button onClick={()=>{toggleVideoStream();EnableVid()}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <VideoOff size={25} />
           </button>

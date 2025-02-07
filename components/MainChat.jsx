@@ -120,10 +120,16 @@ const MainChat = () => {
       socket.emit('muted',{to:clientPeer,muted:false})
     }
   }
-  const ToggleVideo = ()=>{
-    setVideoDisabled(!videoDisabled)
+  const handleDisableVid = ()=>{
+    // setVideoDisabled(!videoDisabled)
     if(socket)[
-      socket.emit('video-status',{status: !videoDisabled,to:clientPeer})
+      socket.emit('video-status',{status: true,to:clientPeer})
+    ]
+  }
+  const handleEnableVid = ()=>{
+    // setVideoDisabled(!videoDisabled)
+    if(socket)[
+      socket.emit('video-status',{status: false,to:clientPeer})
     ]
   }
   const handleCloseDialog= ()=>{
@@ -607,7 +613,8 @@ const MainChat = () => {
                 handleMute={handleMute}
                 handleUnmute={handleUnmute}
                 muted={muted}
-                ToggleVideo={ToggleVideo}
+                DisableVid={handleDisableVid}
+                EnableVid={handleEnableVid}
                 videoDisabled={videoDisabled}
               />
             }
