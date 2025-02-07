@@ -26,7 +26,7 @@ const [ringtoneAudio] = useState(new Audio())
       if(muted){
         console.log(stream, ' prev stream',stream.getAudioTracks())
         stream.getAudioTracks().forEach(track=> {
-          track.enabled = !track.enabled
+          track.enabled = false
           console.log('setting muted stream')
         });
         
@@ -41,7 +41,7 @@ const [ringtoneAudio] = useState(new Audio())
       if(videoDisabled){
         console.log('disabling video')
         stream.getVideoTracks().forEach(track=> {
-          track.enabled = !track.enabled 
+          track.enabled = false
         });
         
       }else{
@@ -57,7 +57,7 @@ const [ringtoneAudio] = useState(new Audio())
       if(toggleVid){
         console.log('disabling video')
         localStream.getVideoTracks().forEach(track=> {
-          track.enabled = !track.enabled 
+          track.enabled = false
         });
         
       }else{
@@ -72,7 +72,7 @@ const [ringtoneAudio] = useState(new Audio())
       if(videoDisabled){
         console.log('disabling video')
         stream.getVideoTracks().forEach(track=> {
-          track.enabled = !track.enabled 
+          track.enabled = false
         });
         
       }else{
@@ -88,7 +88,7 @@ const [ringtoneAudio] = useState(new Audio())
       if(toggleVid){
         console.log('disabling video')
         localStream.getVideoTracks().forEach(track=> {
-          track.enabled = !track.enabled 
+          track.enabled = false
         });
         
       }else{
