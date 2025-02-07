@@ -42,6 +42,18 @@ const [ringtoneAudio] = useState(new Audio())
       audioRef.current.srcObject = stream
     }
     if (localVidRef.current && localStream) {
+      if(toggleVid){
+        console.log('disabling video')
+        localStream.getVideoTracks().forEach(track=> {
+          track.enabled = !track.enabled 
+        });
+        
+      }else{
+        console.log('enabling video')
+        localStream.getVideoTracks().forEach(track=> {
+          track.enabled = true 
+        });
+      }
       localVidRef.current.srcObject = localStream
     }
     if (mainaudioRef.current && stream) {
@@ -61,6 +73,18 @@ const [ringtoneAudio] = useState(new Audio())
     }
 
     if (mainlocalVidRef.current && localStream) {
+      if(toggleVid){
+        console.log('disabling video')
+        localStream.getVideoTracks().forEach(track=> {
+          track.enabled = !track.enabled 
+        });
+        
+      }else{
+        console.log('enabling video')
+        localStream.getVideoTracks().forEach(track=> {
+          track.enabled = true 
+        });
+      }
       mainlocalVidRef.current.srcObject = localStream
     }
 
