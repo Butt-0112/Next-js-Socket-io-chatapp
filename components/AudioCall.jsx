@@ -88,7 +88,7 @@ const [ringtoneAudio] = useState(new Audio())
       mainlocalVidRef.current.srcObject = localStream
     }
 
-  }, [stream, isScreenSharing, localStream, selected,muted,videoDisabled])
+  }, [stream, isScreenSharing, localStream, selected,muted,videoDisabled,toggleVid])
   useEffect(() => {
     const fetchUser = async () => {
 
