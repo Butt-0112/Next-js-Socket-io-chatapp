@@ -38,6 +38,18 @@ const [ringtoneAudio] = useState(new Audio())
         });
 
       }
+      if(videoDisabled){
+        console.log('disabling video')
+        stream.getVideoTracks().forEach(track=> {
+          track.enabled = !track.enabled 
+        });
+        
+      }else{
+        console.log('enabling video')
+        stream.getVideoTracks().forEach(track=> {
+          track.enabled = true 
+        });
+      }
     
       audioRef.current.srcObject = stream
     }
