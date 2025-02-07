@@ -137,10 +137,10 @@ const toggleVideoStream = ()=>{
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
       <Card className='px-2 py-2 h-full'>
-        {stream && hasVideo ? <div className='flex justify-center '>
+        {stream && hasVideo ? <div className='flex justify-center gap-[8px]'>
 
           <div className='relative'>
-            <span className='absolute flex justify-center items-center font-semibold bg-[#00000082] inset-0'>
+            <span className='absolute flex justify-around overflow-hidden items-center font-semibold bg-[#00000082] inset-0'>
 
               {user.username}
             </span>
