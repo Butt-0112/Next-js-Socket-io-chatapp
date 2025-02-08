@@ -1,6 +1,5 @@
 import { SignOutButton, UserButton, UserProfile } from '@clerk/nextjs'
 import { currentUser } from '@clerk/nextjs/server'
-import '../../../css/clerkcomps.css'
 async function Dashboard() {
   const user = await currentUser()
  
