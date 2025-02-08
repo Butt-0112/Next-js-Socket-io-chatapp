@@ -30,6 +30,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import debounce from "lodash.debounce";
 import { useUser } from "@clerk/nextjs"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { User2, ChevronUp } from "lucide-react"
+import { SignOutButton } from "@clerk/nextjs"
 
 export default function AppSidebar() {
   const { selectedUser, user, setSelectedUser } = useContext(context)
@@ -42,7 +45,7 @@ export default function AppSidebar() {
   const { toggleSidebar, isMobile, open } = useSidebar()
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
-  const [contacts,setContacts] = useState([])
+  const [contacts, setContacts] = useState([])
 
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
@@ -75,34 +78,34 @@ export default function AppSidebar() {
     setQuery(value);
     debouncedFetchUsers(value);
   };
-  const fetchContacts = async()=>{
-    const response = await fetch(`${API_BASE_URL}/api/users/fetchContacts`,{
-      method:"POST",
-      headers:{
-        'Content-Type':'application/json'
+  const fetchContacts = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/users/fetchContacts`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
       },
-      body:JSON.stringify({
+      body: JSON.stringify({
         userId: user.id
       })
     })
-    if(response.ok){
+    if (response.ok) {
 
       const json = await response.json()
       return json.contacts
     }
 
   }
-  useEffect(()=>{
-    if(user){
-        const fetchContactsData = async()=>{
-        
-        const contacts = await fetchContacts() 
+  useEffect(() => {
+    if (user) {
+      const fetchContactsData = async () => {
+
+        const contacts = await fetchContacts()
         setContacts(contacts)
       }
       fetchContactsData()
 
     }
-  },[user])
+  }, [user])
 
 
   const handleAddContact = async (contact) => {
@@ -132,7 +135,7 @@ export default function AppSidebar() {
 
     }
   }
-  const deleteContact = async(contact)=>{
+  const deleteContact = async (contact) => {
     const response = await fetch(`${API_BASE_URL}/api/users/deleteContact`, {
       method: "DELETE",
       headers: {
@@ -150,10 +153,10 @@ export default function AppSidebar() {
       const contacts = json.contacts
       setContacts(contacts)
 
-      
+
     }
- 
- }
+
+  }
   useEffect(() => {
     console.log(selectedUser)
   }, [selectedUser])
@@ -171,7 +174,7 @@ export default function AppSidebar() {
           {query.trim() !== '' && <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
- 
+
                 {query.trim().length < 3 ?
                   <p>please enter at least 3 characters to start searching</p>
                   :
@@ -188,26 +191,26 @@ export default function AppSidebar() {
                             <span>{user.username || user.email}</span>
                           </div>
                           <TooltipProvider>
-                          {contacts&&contacts.length>7&&contacts.some(e=>e.clerkId===user.id)   ? 
-                            <Tooltip>
-                              <TooltipTrigger>
+                            {contacts && contacts.length > 7 && contacts.some(e => e.clerkId === user.id) ?
+                              <Tooltip>
+                                <TooltipTrigger>
 
-                               <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                                  <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
                                 </TooltipTrigger>
-                              <TooltipContent>
-                                <p>remove from contacts</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            :   <Tooltip>
-                            <TooltipTrigger>
+                                <TooltipContent>
+                                  <p>remove from contacts</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              : <Tooltip>
+                                <TooltipTrigger>
 
-                               <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
-                          </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Add to contacts</p>
-                            </TooltipContent>
-                          </Tooltip>
-                            }  
+                                  <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Add to contacts</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            }
                           </TooltipProvider>
                         </div>
                       </SidebarMenuItem>
@@ -221,43 +224,80 @@ export default function AppSidebar() {
             <h3 className="font-semibold text-sm">Contacts</h3>
             <SidebarGroupContent>
               <SidebarMenu >
-                {contacts && contacts.length > 0 ?contacts.map((user, index) => {
-                  return <SidebarMenuItem onClick={()=>setSelectedUser(user)}  key={user.clerkId} className="flex hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
-                  <div id="user-item" className='h-full w-full flex justify-between'>
-                    <div className="w-full flex items-center gap-2">
+                {contacts && contacts.length > 0 ? contacts.map((user, index) => {
+                  return <SidebarMenuItem onClick={() => setSelectedUser(user)} key={user.clerkId} className="flex hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
+                    <div id="user-item" className='h-full w-full flex justify-between'>
+                      <div className="w-full flex items-center gap-2">
 
-                      <Avatar>
-                        <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                        <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
-                      </Avatar>
-                      <span>{user.username || user.email}</span>
-                    </div>
-                    <TooltipProvider> 
-                      <Tooltip>
-                        <TooltipTrigger>
+                        <Avatar>
+                          <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
+                          <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
+                        </Avatar>
+                        <span>{user.username || user.email}</span>
+                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
 
-                         <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                            <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
                           </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="font-semibold">
+                          <TooltipContent>
+                            <p className="font-semibold">
 
-                           delete contact 
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                     </TooltipProvider>
-                  </div>
-                </SidebarMenuItem>
+                              delete contact
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </SidebarMenuItem>
                 }) : <p>No contacts found</p>}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
+        {/* <SidebarFooter>
+          <Avatar>
+            <AvatarImage src={user?.imageUrl} alt={user?.username} />
+          </Avatar>
           <Link href={'/dashboard'} >
             {user?.username || user?.email}
           </Link>
+        </SidebarFooter> */}
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className='h-full'>
+                    <Avatar>
+                      <AvatarImage src={user?.imageUrl} alt={user?.username} />
+                    </Avatar>
+                      {user?.username || user?.email}
+                    
+                    <ChevronUp className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  className="w-[--radix-popper-anchor-width]"
+                >
+                  <DropdownMenuItem asChild>
+                  <Link href={'/dashboard'} >
+                    <span>Account</span>
+                  </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem >
+                    <SignOutButton className='w-full text-start' />
+ 
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarFooter>
+
       </Sidebar>}
     </>
   )

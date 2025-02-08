@@ -32,6 +32,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { decryptMessage, encryptMessage } from "@/lib/cryptoUtils/ucrypt";
+import { Avatar, AvatarImage } from "./ui/avatar";
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 const fetchUsers = async () => {
   const res = await fetch(`/api/users/user`, {
@@ -45,9 +46,6 @@ const MainChat = () => {
   const {
     socket,
     userPeer,
-    setSelectedUser,
-    setUsers,
-    users,
     selectedUser,
     user,
     messages,
@@ -59,8 +57,8 @@ const MainChat = () => {
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
-  const [selectedMessage,setSelectedMessage] = useState(null)
-  const [muted,setMuted] = useState(false)
+  const [selectedMessage, setSelectedMessage] = useState(null)
+  const [muted, setMuted] = useState(false)
   const [videoDisabled, setVideoDisabled] = useState(false)
   const [callingToPeer, setCallingToPeer] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
@@ -77,14 +75,40 @@ const MainChat = () => {
   const remoteStreamRef = useRef(null);
   const [callType, setCallType] = useState('audio')
   const [isRndSelected, setIsRndSelected] = useState(true);
-  const [windowSize, setWindowSize] = useState({ width: 280, height: 245 });
   const windowRef = useRef(null);
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
-  const [deleteFor,setDeleteFor] = useState('forme')
-  const messageContainerRef= useRef(null)
+  const [deleteFor, setDeleteFor] = useState('forme')
+  const messageContainerRef = useRef(null)
+   const mainaudioRef = useRef(null)
+    const mainlocalVidRef = useRef(null)
+    const localVidRef = useRef(null)
+     const audioRef = useRef(null)
+
+  const CleanupStates = ()=>{
+    setIncomingCall(false);
+    setMuted(false)
+    setVideoDisabled(false)
+      setCallEnded(true)
+      setCallingToPeer(false);
+      setIsRndSelected(true);
+      setStreamingCall(false);
+      if (remoteStreamRef.current) {
+        console.log('attempting to stop remote stream') 
+        remoteStreamRef.current.getTracks().forEach(track => track.stop());
+        remoteStreamRef.current = null;
+      }
+      if(localStreamRef.current){  
+        
+        console.log('attempting to stop local stream') 
+        localStreamRef.current.getTracks().forEach(track => track.stop());
+        localStreamRef.current = null
+      }
+      window.MediaStream = null
+      setIsScreenSharing(false)
+  }
   const onMessage = async () => {
-    if (message.trim()!==''&&message.length > 0) {
+    if (message.trim() !== '' && message.length > 0) {
       const encryptedMessage = encryptMessage(message)
       if (selectedUser) {
         socket.emit("private message", {
@@ -95,7 +119,7 @@ const MainChat = () => {
         setMessage("");
         setSelectedMessage(null)
         try {
-          
+
           const token = await getToken(selectedUser.clerkId)
           sendNotification(token, user.username, message, 'http://localhost:3000/')
         } catch (error) {
@@ -110,31 +134,31 @@ const MainChat = () => {
       messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
-  const handleMute = ()=>{
+  const handleMute = () => {
     // setMuted(true)
-    if(socket){
-      socket.emit('muted',{to:clientPeer,muted:true})
+    if (socket) {
+      socket.emit('muted', { to: clientPeer, muted: true })
     }
   }
-  const handleUnmute = ()=>{
-   
-    if(socket){
-      socket.emit('muted',{to:clientPeer,muted:false})
+  const handleUnmute = () => {
+
+    if (socket) {
+      socket.emit('muted', { to: clientPeer, muted: false })
     }
   }
-  const handleDisableVid = ()=>{
+  const handleDisableVid = () => {
     // setVideoDisabled(!videoDisabled)
-    if(socket)[
-      socket.emit('video-status',{status: true,to:clientPeer})
+    if (socket) [
+      socket.emit('video-status', { status: true, to: clientPeer })
     ]
   }
-  const handleEnableVid = ()=>{
+  const handleEnableVid = () => {
     // setVideoDisabled(!videoDisabled)
-    if(socket)[
-      socket.emit('video-status',{status: false,to:clientPeer})
+    if (socket) [
+      socket.emit('video-status', { status: false, to: clientPeer })
     ]
   }
-  const handleCloseDialog= ()=>{
+  const handleCloseDialog = () => {
     setIsDeletionDialogOpen(false)
     setSelectedMessage(null)
   }
@@ -149,17 +173,23 @@ const MainChat = () => {
     }
   };
 
-  const sendCall = (type) => {
-    setClientPeer(selectedUser?.clerkId);
+  const sendCall = (type,to_user) => {
+    setClientPeer(selectedUser?.clerkId); 
     if (socket) {
-      socket.emit("call", { from: user?.id, to: selectedUser?.clerkId, type });
+      if(to_user){
+
+        socket.emit("call", { from: user?.id, to: to_user?.id, type });
+      }else{
+
+        socket.emit("call", { from: user?.id, to: selectedUser?.clerkId, type });
+      }
 
       setCallingToPeer(true);
     }
   };
-  const sendVidCallInvite =  () => {
-      hangUpCall()
-      sendCall('video')
+  const sendVidCallInvite = (to_user) => {
+    hangUpCall()
+    sendCall('video',to_user)
 
   }
   const AnswerCall = (type) => {
@@ -172,34 +202,29 @@ const MainChat = () => {
       socket.emit("answer-vid-call", { from: user?.id, to: clientPeer });
     }
   };
-  useEffect(() => {
-    // Request notification permission on component mount
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-  }, []);
+  
   const hangUpCall = () => {
     if (socket) {
       console.log(clientPeer);
       socket.emit("call-ended", { to: clientPeer });
-      setIncomingCall(false);
-      setCallEnded(true)
-      setCallingToPeer(false);
-      setIsRndSelected(true);
-      setStreamingCall(false);
-      remoteStreamRef.current = null
-      setStream(null)
-      setIsScreenSharing(false)
+      // setIncomingCall(false);
+      // setCallEnded(true)
+      // setCallingToPeer(false);
+      // setIsRndSelected(true);
+      // setStreamingCall(false);
+      // remoteStreamRef.current = null
+      // setStream(null)
+      // setIsScreenSharing(false)
+      CleanupStates()
     }
   };
   const handleMessageDelete = async (messageId) => {
-    if (!messageId){
-      console.log('returning') 
-      return
-    } 
-      
+    if (!messageId) {
+        return
+    }
+
     // setIsDeletionDialogOpen(true)
-    if(deleteFor==='foreveryone'){
+    if (deleteFor === 'foreveryone') {
 
       await deleteMessage(messageId)
       const updatedMessages = messages.filter(msg => msg._id !== messageId)
@@ -208,17 +233,17 @@ const MainChat = () => {
         console.log('attempting to delete', messageId)
         socket.emit('message-deleted', { messageId, to: selectedUser.clerkId })
       }
-    }else{
-      const response = await fetch(`${API_BASE_URL}/api/messaging/deleteForMe`,{
-      method:'POST',
-      headers:{
-      'Content-Type':'application/json'
-      },
-      body:JSON.stringify({messageId,userId:user?.id})
+    } else {
+      const response = await fetch(`${API_BASE_URL}/api/messaging/deleteForMe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ messageId, userId: user?.id })
       })
-      if(response.ok){
+      if (response.ok) {
         const updatedMessages = messages.filter(msg => msg._id !== messageId)
-      setMessages(updatedMessages)
+        setMessages(updatedMessages)
       }
     }
   }
@@ -263,7 +288,7 @@ const MainChat = () => {
       });
       if (response.ok) {
         const json = await response.json();
-        const filteredMessages = json.filter(msg=>msg.deletedBy[0]!==user?.id)
+        const filteredMessages = json.filter(msg => msg.deletedBy[0] !== user?.id)
 
         setMessages(filteredMessages);
       }
@@ -276,7 +301,7 @@ const MainChat = () => {
       fetchdata();
     }
   }, [selectedUser, user]);
-  
+
   const screenShare = () => {
     navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).then((localStream) => {
 
@@ -289,18 +314,18 @@ const MainChat = () => {
   }
   const showNotificationIncomingCall = (title) => {
     if (Notification.permission === 'granted') {
-      navigator.serviceWorker.ready.then(function(registration) {
+      navigator.serviceWorker.ready.then(function (registration) {
         registration.showNotification(title, {
- 
-          actions: [{ action: 'decline', title: 'Decline' },{action:'answer',title:'Answer'}],
-          
+
+          actions: [{ action: 'decline', title: 'Decline' }, { action: 'answer', title: 'Answer' }],
+
         });
       });
     }
   };
   useEffect(() => {
     if (socket) {
-      socket.on("incoming-call", async({ from, to, type }) => {
+      socket.on("incoming-call", async ({ from, to, type }) => {
         const _from = await fetchUserById(from)
         console.log(_from)
         showNotificationIncomingCall(`Incoming call from ${_from.username}`)
@@ -311,36 +336,37 @@ const MainChat = () => {
       });
       socket.on("user-disconnected", () => {
         console.log('user disconnected')
-        setCallEnded(true);
-        setIncomingCall(false);
-        setCallingToPeer(false);
-        setStreamingCall(false);
-        setIsRndSelected(true);
-        remoteStreamRef.current = null
-
+        // setCallEnded(true);
+        // setIncomingCall(false);
+        // setCallingToPeer(false);
+        // setStreamingCall(false);
+        // setIsRndSelected(true);
+        // remoteStreamRef.current = null
+        CleanupStates()
       })
-      socket.on('muted',({muted})=>{
-        console.log(muted,' in receiver')
+      socket.on('muted', ({ muted }) => {
+        console.log(muted, ' in receiver')
         setMuted(muted)
       })
-      socket.on('video-status',({status})=>{
-        console.log(status,' in receiver')
+      socket.on('video-status', ({ status }) => {
+        console.log(status, ' in receiver')
         setVideoDisabled(status)
       })
       socket.on('message-deleted', ({ messageId }) => {
         console.log(messageId, ' got the messageId in recevier')
-       
+
         const updatedMessages = messages.filter(msg => msg._id !== messageId)
-     
+
         setMessages(updatedMessages)
       })
       socket.on("call-ended-from", ({ to }) => {
-        setCallEnded(true);
-        setIncomingCall(false);
-        setCallingToPeer(false);
-        setStreamingCall(false);
-        setIsRndSelected(true);
-        remoteStreamRef.current = null
+        // setCallEnded(true);
+        // setIncomingCall(false);
+        // setCallingToPeer(false);
+        // setStreamingCall(false);
+        // setIsRndSelected(true);
+        // remoteStreamRef.current = null
+        CleanupStates()
 
       });
       socket.on("call-answered", ({ from, type }) => {
@@ -369,7 +395,7 @@ const MainChat = () => {
         const callType = call.metadata.type
 
         try {
-          
+
           navigator.mediaDevices
             .getUserMedia(callType === 'audio' ? { audio: { deviceId: selectedDeviceId } } : { video: true, audio: true })
             .then((localStream) => {
@@ -415,12 +441,12 @@ const MainChat = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [streamingCall]);
-  const handleEditMessage = async(message)=>{
+  const handleEditMessage = async (message) => {
     // await deleteMessage(message)
     setMessage(message.content)
 
   }
-  useEffect(()=>console.log(selectedMessage),[selectedMessage])
+  useEffect(() => console.log(selectedMessage), [selectedMessage])
   return (
     <div
       className=" h-[100vh]"
@@ -440,7 +466,12 @@ const MainChat = () => {
           <div className="flex pl-5">
             {selectedUser?.clerkId && (
               <div className="flex justify-between items-center w-full ">
-                <h3 className="font-bold">{selectedUser?.username}</h3>
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
+                  </Avatar>
+                  <h3 className="font-bold">{selectedUser?.username}</h3>
+                </div>
                 <div className="flex">
 
                   <Button onClick={() => sendCall('video')} variant="outline">
@@ -455,7 +486,7 @@ const MainChat = () => {
             )}
             <ModeToggle />
           </div>
-          <div className="h-5 flex items-center justify-center">
+          <div className=" flex items-center justify-center">
             {streamingCall && !isRndSelected && (
               <div
                 onClick={handleRndClick}
@@ -474,7 +505,7 @@ const MainChat = () => {
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
-          const decryptedMessage = decryptMessage(message.content)
+            const decryptedMessage = decryptMessage(message.content)
             return (
 
               <div
@@ -495,21 +526,21 @@ const MainChat = () => {
                 key={index + 1}
               >
                 <ContextMenu>
-                  <ContextMenuTrigger onClick={()=>setSelectedMessage(message)}>{decryptedMessage}</ContextMenuTrigger>
+                  <ContextMenuTrigger onClick={() => setSelectedMessage(message)}>{decryptedMessage}</ContextMenuTrigger>
                   <ContextMenuContent>
 
                     <ContextMenuItem
-                      onClick={() => {setIsDeletionDialogOpen(true);setSelectedMessage(message)}}
+                      onClick={() => { setIsDeletionDialogOpen(true); setSelectedMessage(message) }}
                     >Delete</ContextMenuItem>
 
-                  {/* {message.from===user.id&&  <ContextMenuItem onClick={()=>{handleEditMessage(message)}} >Edit</ContextMenuItem>}
+                    {/* {message.from===user.id&&  <ContextMenuItem onClick={()=>{handleEditMessage(message)}} >Edit</ContextMenuItem>}
                      */}
                   </ContextMenuContent>
                 </ContextMenu>
 
               </div>
             );
-                
+
           })
         ) : (
           <div className="w-full select-none gap-2 flex justify-center h-full flex-col items-center">
@@ -554,35 +585,35 @@ const MainChat = () => {
       <div></div>
       <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
 
-<DialogTrigger asChild>
-  {/* <Button variant="outline">Edit Profile</Button> */}
-</DialogTrigger>
-<DialogContent className="sm:max-w-[425px]">
-  <DialogHeader>
-    <DialogTitle>Delete Message</DialogTitle>
-    <DialogDescription>
-      This will delete the selected message and cannot be undone.
-    </DialogDescription>
-  </DialogHeader>
-  <RadioGroup defaultValue="forme" onValueChange={setDeleteFor}>
-    <div className="flex items-center space-x-2">
-      <RadioGroupItem className='fill-red-500' value="forme" id="r1" />
-      <Label htmlFor="r1">Delete for me</Label>
-    </div>
-    
-   {selectedMessage?.from===user?.id&& <div className="flex items-center space-x-2">
-      <RadioGroupItem  className='fill-red-500' value="foreveryone" id="r2" />
-      <Label htmlFor="r2">Delete for Everyone</Label>
-    </div>}
-  </RadioGroup>
+        <DialogTrigger asChild>
+          {/* <Button variant="outline">Edit Profile</Button> */}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Message</DialogTitle>
+            <DialogDescription>
+              This will delete the selected message and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <RadioGroup defaultValue="forme" onValueChange={setDeleteFor}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem className='fill-red-500' value="forme" id="r1" />
+              <Label htmlFor="r1">Delete for me</Label>
+            </div>
 
-  <DialogFooter>
-    <Button type="submit" className='bg-red-600 text-white hover:bg-red-700' onClick={() => { setIsDeletionDialogOpen(false); handleMessageDelete(selectedMessage._id) }}>Delete</Button>
-  </DialogFooter>
-</DialogContent>
+            {selectedMessage?.from === user?.id && <div className="flex items-center space-x-2">
+              <RadioGroupItem className='fill-red-500' value="foreveryone" id="r2" />
+              <Label htmlFor="r2">Delete for Everyone</Label>
+            </div>}
+          </RadioGroup>
+
+          <DialogFooter>
+            <Button type="submit" className='bg-red-600 text-white hover:bg-red-700' onClick={() => { setIsDeletionDialogOpen(false); handleMessageDelete(selectedMessage._id) }}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
 
 
-</Dialog>
+      </Dialog>
       {(streamingCall || incomingCall || callingToPeer) && (
         <div
           className={`absolute ${isRndSelected
@@ -619,6 +650,11 @@ const MainChat = () => {
                 DisableVid={handleDisableVid}
                 EnableVid={handleEnableVid}
                 videoDisabled={videoDisabled}
+                callEnded={callEnded}
+                mainlocalVidRef={mainlocalVidRef}
+                mainaudioRef={mainaudioRef}
+              audioRef={audioRef}
+              localVidRef={localVidRef}
               />
             }
           </div>

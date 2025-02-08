@@ -6,20 +6,19 @@ import { Button } from './ui/button'
 import '../css/videoaudio.css'
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 
-const AudioCall = ({ stream,muted,EnableVid,DisableVid, videoDisabled,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
-  const audioRef = useRef(null)
+const AudioCall = ({mainaudioRef,audioRef,mainlocalVidRef,localVidRef,stream,muted,EnableVid,DisableVid, videoDisabled,handleMute,handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+ 
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const hasVideo = stream && stream.getVideoTracks().length > 0;
   const [selected, setSelected] = useState(peerID)
-  const mainaudioRef = useRef(null)
-  const mainlocalVidRef = useRef(null)
-  const localVidRef = useRef(null)
+ 
   const ringtoneRef = useRef(null)
   const [mutedbyme,setMutedByMe] = useState(false)
   const [toggleVid,setToggleVid] = useState(false)
 const [ringtoneAudio] = useState(new Audio())
+const [callEnded,setCallEnded]  =useState(false)
   useEffect(() => {
     console.log(isScreenSharing)
     if (audioRef.current && stream) {
@@ -101,6 +100,7 @@ const [ringtoneAudio] = useState(new Audio())
     }
 
   }, [stream, isScreenSharing, localStream, selected,muted,videoDisabled,toggleVid])
+  
   useEffect(() => {
     const fetchUser = async () => {
 
@@ -202,7 +202,7 @@ const toggleVideoStream = ()=>{
             <VideoOff size={25} />
           </button>
           :
-         <button onClick={()=>{sendVidCallInvite}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+         <button onClick={()=>{sendVidCallInvite(user)}} disabled={isCalling} className='bg-zinc-800 px-2 py-2  disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <Video size={25} />
           </button>
@@ -218,7 +218,7 @@ const toggleVideoStream = ()=>{
             <Mic size={25}  />
               </button>
           }
-          <button onClick={hangUp} className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-700">
+          <button onClick={()=>{hangUp();setCallEnded(true)}} className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-700">
             <Phone style={{ rotate: '135deg' }} />
           </button>
 

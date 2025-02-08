@@ -28,9 +28,9 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current path
 
   // List of routes where the sidebar should be hidden 
-  const noSidebarRoutes = ['/login', '/signup'];
+  const noSidebarRoutes = ['/login', '/signup','/dashboard'];
  
-  const showSidebar = !noSidebarRoutes.includes(pathname);
+  const showSidebar = !noSidebarRoutes.some(route => pathname.startsWith(route));
   return (
     <ClerkProvider appearance={{
       baseTheme: dark,
