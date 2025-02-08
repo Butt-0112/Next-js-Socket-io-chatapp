@@ -13,6 +13,9 @@ const nextConfig = {
         NEXT_PUBLIC_MEASUREMENT_ID: "G-KD8T2X94Z7",
         SECRET_KEY:"$2b$30$OhcFx2.wPW1BpiWsou0Hce"
     },
+    images:{
+        domains:['img.clerk.com']
+    }
 };
 
 export default nextConfig;
