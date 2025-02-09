@@ -153,7 +153,6 @@ export default function AppSidebar() {
       const contacts = json.contacts
       setContacts(contacts)
 
-
     }
 
   }
@@ -168,7 +167,6 @@ export default function AppSidebar() {
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
-          {/* <RealtimeUserSearch /> */}
           {query.trim() !== '' && <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>

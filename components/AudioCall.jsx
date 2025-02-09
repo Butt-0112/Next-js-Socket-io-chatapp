@@ -20,24 +20,13 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
     const updateStreamTracks = (ref, stream, isMuted, isVideoDisabled) => {
       if (stream && ref.current) {
 
-
         stream.getAudioTracks().forEach(track => {
           track.enabled = !isMuted;
         });
         stream.getVideoTracks().forEach(track => {
           track.enabled = !isVideoDisabled;
         });
-
-
-        // stream.getAudioTracks().forEach(track => {
-        //   track.enabled = false;
-        // });
-        // stream.getVideoTracks().forEach(track => {
-        //   track.enabled = false;
-        // });
-
-
-        ref.current.srcObject = stream
+      ref.current.srcObject = stream
       }
     };
 
@@ -50,71 +39,6 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
       }
     };
 
-    // if (audioRef.current && stream) {
-    //   if (muted) { 
-    //     stream.getAudioTracks().forEach(track => {
-    //       track.enabled = false 
-    //     });
-
-    //   } else {
-    //     stream.getAudioTracks().forEach(track => { 
-    //       track.enabled = true
-    //     });
-
-    //   }
-    //   if (videoDisabled) { 
-    //     stream.getVideoTracks().forEach(track => {
-    //       track.enabled = false
-    //     });
-
-    //   } else { 
-    //     stream.getVideoTracks().forEach(track => {
-    //       track.enabled = true
-    //     });
-    //   }
-
-    //   audioRef.current.srcObject = stream
-    // }
-    // if (localVidRef.current && localStream) {
-    //   if (toggleVid) { 
-    //     localStream.getVideoTracks().forEach(track => {
-    //       track.enabled = false
-    //     });
-
-    //   } else { 
-    //     localStream.getVideoTracks().forEach(track => {
-    //       track.enabled = true
-    //     });
-    //   }
-    //   localVidRef.current.srcObject = localStream
-    // }
-    // if (mainaudioRef.current && stream) {
-    //   if (videoDisabled) { 
-    //     stream.getVideoTracks().forEach(track => {
-    //       track.enabled = false
-    //     });
-
-    //   } else { 
-    //     stream.getVideoTracks().forEach(track => {
-    //       track.enabled = true
-    //     });
-    //   }
-    //   mainaudioRef.current.srcObject = stream
-    // }
-
-    // if (mainlocalVidRef.current && localStream) {
-    //   if (toggleVid) { 
-    //     localStream.getVideoTracks().forEach(track => {
-    //       track.enabled = false
-    //     });
-
-    //   } else { 
-    //     localStream.getVideoTracks().forEach(track => {
-    //       track.enabled = true
-    //     });
-    //   }
-    //   mainlocalVidRef.current.srcObject = localStream
-    // }
     updateStreamTracks(audioRef, stream, muted, videoDisabled);
     updateVideoStream(audioRef, stream, videoDisabled);
     updateVideoStream(mainaudioRef, stream, videoDisabled);
@@ -139,9 +63,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
     setToggleVid(!toggleVid)
   }
 
-
   return (
-
 
     <div className='max-w-screen-lg '>
       {incomingCall && <audio ref={ringtoneRef} className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
