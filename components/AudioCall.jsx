@@ -2,13 +2,10 @@ import { context } from '@/context/context'
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video, VideoOff } from 'lucide-react'
-import { Button } from './ui/button'
 import '../css/videoaudio.css'
-import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import Image from 'next/image'
 
-const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, stream, muted, EnableVid, DisableVid, videoDisabled, handleMute, handleUnmute, screenShare, isScreenSharing, incomingVidCall, localStream, callType, answerVidCall, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, stream, muted, EnableVid, DisableVid, videoDisabled, handleMute, handleUnmute, screenShare, isScreenSharing, localStream, callType, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
 
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -19,87 +16,110 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   const ringtoneRef = useRef(null)
   const [mutedbyme, setMutedByMe] = useState(false)
   const [toggleVid, setToggleVid] = useState(false)
-  const [ringtoneAudio] = useState(new Audio())
-  const [callEnded, setCallEnded] = useState(false)
   useEffect(() => {
-    console.log(isScreenSharing)
-    if (audioRef.current && stream) {
-      if (muted) {
-        console.log(stream, ' prev stream', stream.getAudioTracks())
+    const updateStreamTracks = (ref, stream, isMuted, isVideoDisabled) => {
+      if (stream && ref.current) {
+
+
         stream.getAudioTracks().forEach(track => {
-          track.enabled = false
-          console.log('setting muted stream')
+          track.enabled = !isMuted;
         });
-
-
-      } else {
-        stream.getAudioTracks().forEach(track => {
-          console.log('setting new stream')
-          track.enabled = true
-        });
-
-      }
-      if (videoDisabled) {
-        console.log('disabling video')
         stream.getVideoTracks().forEach(track => {
-          track.enabled = false
+          track.enabled = !isVideoDisabled;
         });
 
-      } else {
-        console.log('enabling video')
+
+        // stream.getAudioTracks().forEach(track => {
+        //   track.enabled = false;
+        // });
+        // stream.getVideoTracks().forEach(track => {
+        //   track.enabled = false;
+        // });
+
+
+        ref.current.srcObject = stream
+      }
+    };
+
+    const updateVideoStream = (videoRef, stream, isVideoDisabled) => {
+      if (videoRef.current && stream) {
         stream.getVideoTracks().forEach(track => {
-          track.enabled = true
+          track.enabled = !isVideoDisabled;
         });
+        videoRef.current.srcObject = stream;
       }
+    };
 
-      audioRef.current.srcObject = stream
-    }
-    if (localVidRef.current && localStream) {
-      if (toggleVid) {
-        console.log('disabling video')
-        localStream.getVideoTracks().forEach(track => {
-          track.enabled = false
-        });
+    // if (audioRef.current && stream) {
+    //   if (muted) { 
+    //     stream.getAudioTracks().forEach(track => {
+    //       track.enabled = false 
+    //     });
 
-      } else {
-        console.log('enabling video')
-        localStream.getVideoTracks().forEach(track => {
-          track.enabled = true
-        });
-      }
-      localVidRef.current.srcObject = localStream
-    }
-    if (mainaudioRef.current && stream) {
-      if (videoDisabled) {
-        console.log('disabling video')
-        stream.getVideoTracks().forEach(track => {
-          track.enabled = false
-        });
+    //   } else {
+    //     stream.getAudioTracks().forEach(track => { 
+    //       track.enabled = true
+    //     });
 
-      } else {
-        console.log('enabling video')
-        stream.getVideoTracks().forEach(track => {
-          track.enabled = true
-        });
-      }
-      mainaudioRef.current.srcObject = stream
-    }
+    //   }
+    //   if (videoDisabled) { 
+    //     stream.getVideoTracks().forEach(track => {
+    //       track.enabled = false
+    //     });
 
-    if (mainlocalVidRef.current && localStream) {
-      if (toggleVid) {
-        console.log('disabling video')
-        localStream.getVideoTracks().forEach(track => {
-          track.enabled = false
-        });
+    //   } else { 
+    //     stream.getVideoTracks().forEach(track => {
+    //       track.enabled = true
+    //     });
+    //   }
 
-      } else {
-        console.log('enabling video')
-        localStream.getVideoTracks().forEach(track => {
-          track.enabled = true
-        });
-      }
-      mainlocalVidRef.current.srcObject = localStream
-    }
+    //   audioRef.current.srcObject = stream
+    // }
+    // if (localVidRef.current && localStream) {
+    //   if (toggleVid) { 
+    //     localStream.getVideoTracks().forEach(track => {
+    //       track.enabled = false
+    //     });
+
+    //   } else { 
+    //     localStream.getVideoTracks().forEach(track => {
+    //       track.enabled = true
+    //     });
+    //   }
+    //   localVidRef.current.srcObject = localStream
+    // }
+    // if (mainaudioRef.current && stream) {
+    //   if (videoDisabled) { 
+    //     stream.getVideoTracks().forEach(track => {
+    //       track.enabled = false
+    //     });
+
+    //   } else { 
+    //     stream.getVideoTracks().forEach(track => {
+    //       track.enabled = true
+    //     });
+    //   }
+    //   mainaudioRef.current.srcObject = stream
+    // }
+
+    // if (mainlocalVidRef.current && localStream) {
+    //   if (toggleVid) { 
+    //     localStream.getVideoTracks().forEach(track => {
+    //       track.enabled = false
+    //     });
+
+    //   } else { 
+    //     localStream.getVideoTracks().forEach(track => {
+    //       track.enabled = true
+    //     });
+    //   }
+    //   mainlocalVidRef.current.srcObject = localStream
+    // }
+    updateStreamTracks(audioRef, stream, muted, videoDisabled);
+    updateVideoStream(audioRef, stream, videoDisabled);
+    updateVideoStream(mainaudioRef, stream, videoDisabled);
+    updateVideoStream(localVidRef, localStream, toggleVid);
+    updateVideoStream(mainlocalVidRef, localStream, toggleVid);
 
   }, [stream, isScreenSharing, localStream, selected, muted, videoDisabled, toggleVid])
 
@@ -118,18 +138,8 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   const toggleVideoStream = () => {
     setToggleVid(!toggleVid)
   }
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-  useEffect(() => {
-    console.log(muted)
-    if (audioRef.current) {
-      audioRef.current.muted = muted
-      console.log('set muted')
-    }
-  }, [muted])
+
+
   return (
 
 
@@ -139,6 +149,13 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
       <Card className='px-2 py-2 h-full'>
+        <CardHeader className='px-2 py-2'>
+
+          {(incomingCall || isCalling) && <CardTitle className='  animate-pulse px-2 py-2 rounded-lg text-center'>
+            {incomingCall && `Incoming ${callType} call`}
+            {isCalling && `Calling`}
+          </CardTitle>}
+        </CardHeader>
         {stream && hasVideo ? <div className='flex justify-center gap-[8px]'>
 
           <div className='relative'>
@@ -160,6 +177,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
         </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
         <Card className='dark:bg-zinc-900 bg-zinc-400' >
+
           {stream && hasVideo ?
             (
               <div className='max-h-[70vh]'>
@@ -175,11 +193,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
                 }
               </div>
             )
-            : <div className="flex gap-2 min-h-40 justify-center py-4 flex-col items-center ">
-              {(incomingCall || isCalling) && <CardTitle className='bg-green-500 animate-pulse px-2 py-2 rounded-lg'>
-                {incomingCall && `Incoming ${callType} call`}
-                {isCalling && `Calling`}
-              </CardTitle>}
+            : <div className="flex gap-2  min-h-64 justify-center   flex-col items-center ">
               {user?.imageUrl ? (
                 <Image src={user.imageUrl} width={80} height={80} alt='username' className='rounded-full' />
               ) : (
@@ -226,12 +240,12 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
               <Mic size={25} />
             </button>
           }
-          <button onClick={() => { hangUp(); setCallEnded(true) }} className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-700">
+          <button onClick={() => { hangUp(); }} className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-700">
             <Phone style={{ rotate: '135deg' }} />
           </button>
 
         </div>}
-        {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2   py-3'>
+        {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2  mt-2 py-3'>
 
           <button onClick={() => answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg   w-full justify-center flex hover:bg-green-700">
             <Phone />

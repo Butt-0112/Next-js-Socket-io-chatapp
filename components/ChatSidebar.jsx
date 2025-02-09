@@ -157,9 +157,7 @@ export default function AppSidebar() {
     }
 
   }
-  useEffect(() => {
-    console.log(selectedUser)
-  }, [selectedUser])
+ 
   return (
     <>
       {isPageLoading ? <SidebarSkeleton /> : <Sidebar>
@@ -225,7 +223,7 @@ export default function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu >
                 {contacts && contacts.length > 0 ? contacts.map((user, index) => {
-                  return <SidebarMenuItem onClick={() => setSelectedUser(user)} key={user.clerkId} className="flex hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
+                  return <SidebarMenuItem onClick={() => setSelectedUser(user)} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
                     <div id="user-item" className='h-full w-full flex justify-between'>
                       <div className="w-full flex items-center gap-2">
 
