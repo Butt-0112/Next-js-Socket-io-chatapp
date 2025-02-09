@@ -9,19 +9,6 @@ import { usePathname } from 'next/navigation'; // Import the hook to get the cur
 import { useContext, useEffect, useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-
-
 
 export default function RootLayout({ children }) {
   const [isOpen, setIsOpen] = useState(true)
@@ -89,8 +76,6 @@ export default function RootLayout({ children }) {
                 {showSidebar  && <AppSidebar />}
                 {showSidebar && <SidebarTrigger onClick={() => { setIsOpen(!isOpen) }} className={` absolute left-0 z-50 top-3 ${!isOpen && ''} `} />}
                 <main className="w-full">
-
-
 
                   {
                     // !isSingleInstance ? <div className="text-center">Another instance of the application is already running.</div>
