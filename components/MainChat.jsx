@@ -119,7 +119,7 @@ const MainChat = () => {
         try {
 
           const token = await getToken(selectedUser.clerkId)
-          sendNotification(token, user.username, message, 'http://localhost:3000/')
+          sendNotification(token, user.username, message, 'https://next-js-socket-io-chatapp.vercel.app/')
         } catch (error) {
           console.log('an error occured')
         }
