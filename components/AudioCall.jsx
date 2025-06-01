@@ -62,7 +62,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   const toggleVideoStream = () => {
     setToggleVid(!toggleVid)
   }
-
+ 
   return (
 
     <div className='max-w-screen-lg '>
@@ -71,13 +71,15 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
       <Card className='px-2 py-2 h-full'>
+          {(incomingCall || isCalling) &&
         <CardHeader className='px-2 py-2'>
 
-          {(incomingCall || isCalling) && <CardTitle className='  animate-pulse px-2 py-2 rounded-lg text-center'>
+           <CardTitle className='  animate-pulse px-2 py-2 rounded-lg text-center'>
             {incomingCall && `Incoming ${callType} call`}
             {isCalling && `Calling`}
-          </CardTitle>}
+          </CardTitle>
         </CardHeader>
+          }
         {stream && hasVideo ? <div className='flex justify-center gap-[8px]'>
 
           <div className='relative'>
