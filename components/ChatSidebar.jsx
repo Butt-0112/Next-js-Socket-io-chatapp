@@ -41,8 +41,7 @@ export default function AppSidebar() {
   const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
   const [filteredUsers, setFilteredUsers] = useState([]); // Stores locally filtered results
   // const [user,setUser ] = useState({})
-
-  const { toggleSidebar, isMobile, open } = useSidebar()
+ 
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
   const [contacts, setContacts] = useState([])
@@ -50,6 +49,14 @@ export default function AppSidebar() {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const { API_BASE_URL } = useContext(context)
+  const { isMobile, openMobile, setOpenMobile } = useSidebar()
+
+  const handleClick = () => {
+    console.log('in click')
+    if (isMobile && openMobile) {
+      setOpenMobile(false)
+    }
+  }
   const fetchUsers = async (searchQuery) => {
     if (searchQuery.length < 3) {
       setUsers([]);
@@ -159,7 +166,7 @@ export default function AppSidebar() {
  
   return (
     <>
-      {isPageLoading ? <SidebarSkeleton /> : <Sidebar>
+      {isPageLoading ? <SidebarSkeleton /> : <Sidebar collapsible="offcanvas">
         <SidebarHeader >
           <h3 className="font-bold pt-2 pl-6">Chats</h3>
           <SidebarMenu>
@@ -176,16 +183,16 @@ export default function AppSidebar() {
                   :
                   <ul>
                     {users.length > 0 && users.map((user) => (
-                      <SidebarMenuItem key={user.id} className="flex gap-3 items-center ">
-                        <div className='h-full w-full flex justify-between'>
-                          <div className="w-full flex items-center gap-2">
+                      <div key={user.id} className="flex gap-3 items-center "  >
+                        <div  className='h-full w-full flex justify-between' >
+                          <SidebarMenuButton asChild className="w-full flex items-center gap-2" >
 
                             <Avatar>
                               <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
                               <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
                             </Avatar>
                             <span>{user.username || user.email}</span>
-                          </div>
+                          </SidebarMenuButton>
                           <TooltipProvider>
                             {contacts && contacts.length > 7 && contacts.some(e => e.clerkId === user.id) ?
                               <Tooltip>
@@ -209,7 +216,7 @@ export default function AppSidebar() {
                             }
                           </TooltipProvider>
                         </div>
-                      </SidebarMenuItem>
+                      </div>
                     ))}
                   </ul>
                 }
@@ -221,7 +228,7 @@ export default function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu >
                 {contacts && contacts.length > 0 ? contacts.map((user, index) => {
-                  return <SidebarMenuItem onClick={() => setSelectedUser(user)} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
+                  return <SidebarMenuItem onClick={() => {setSelectedUser(user);handleClick()}} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
                     <div id="user-item" className='h-full w-full flex justify-between'>
                       <div className="w-full flex items-center gap-2">
 
@@ -248,6 +255,9 @@ export default function AppSidebar() {
                     </div>
                   </SidebarMenuItem>
                 }) : <p>No contacts found</p>}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild onClick={()=>console.log('he clicked me')}>click me</SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

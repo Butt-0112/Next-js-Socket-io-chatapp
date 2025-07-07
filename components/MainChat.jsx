@@ -30,9 +30,8 @@ import {
   ContextMenuTrigger,
 } from "./ui/context-menu"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
-import { decryptMessage, encryptMessage } from "@/lib/cryptoUtils/ucrypt";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Label } from "./ui/label"; 
+import { Avatar, AvatarImage } from "./ui/avatar"; 
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 const fetchUsers = async () => {
   const res = await fetch(`/api/users/user`, {
@@ -80,37 +79,37 @@ const MainChat = () => {
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
   const [deleteFor, setDeleteFor] = useState('forme')
   const messageContainerRef = useRef(null)
-   const mainaudioRef = useRef(null)
-    const mainlocalVidRef = useRef(null)
-    const localVidRef = useRef(null)
-     const audioRef = useRef(null)
+  const mainaudioRef = useRef(null)
+  const mainlocalVidRef = useRef(null)
+  const localVidRef = useRef(null)
+  const audioRef = useRef(null) 
 
-  const CleanupStates = ()=>{
+  const CleanupStates = () => {
     setIncomingCall(false);
     setMuted(false)
     setVideoDisabled(false)
-      setCallEnded(true)
-      setCallingToPeer(false);
-      setIsRndSelected(true);
-      setStreamingCall(false);
-      if (remoteStreamRef.current) { 
-        remoteStreamRef.current.getTracks().forEach(track => track.stop());
-        remoteStreamRef.current = null;
-      }
-      if(localStreamRef.current){  
-         
-        localStreamRef.current.getTracks().forEach(track => track.stop());
-        localStreamRef.current = null
-      }
-      window.MediaStream = null
-      setIsScreenSharing(false)
+    setCallEnded(true)
+    setCallingToPeer(false);
+    setIsRndSelected(true);
+    setStreamingCall(false);
+    if (remoteStreamRef.current) {
+      remoteStreamRef.current.getTracks().forEach(track => track.stop());
+      remoteStreamRef.current = null;
+    }
+    if (localStreamRef.current) {
+
+      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current = null
+    }
+    window.MediaStream = null
+    setIsScreenSharing(false)
   }
   const onMessage = async () => {
     if (message.trim() !== '' && message.length > 0) {
-      const encryptedMessage = encryptMessage(message)
+      // const encryptedMessage = encryptMessage(message)
       if (selectedUser) {
         socket.emit("private message", {
-          content: encryptedMessage,
+          content: message,
           to: selectedUser.clerkId,
         });
         // setMessages((prev) => [...prev, { content: message, from: user.id }]);
@@ -171,13 +170,13 @@ const MainChat = () => {
     }
   };
 
-  const sendCall = (type,to_user) => {
-    setClientPeer(selectedUser?.clerkId); 
+  const sendCall = (type, to_user) => {
+    setClientPeer(selectedUser?.clerkId);
     if (socket) {
-      if(to_user){
+      if (to_user) {
 
         socket.emit("call", { from: user?.id, to: to_user?.id, type });
-      }else{
+      } else {
 
         socket.emit("call", { from: user?.id, to: selectedUser?.clerkId, type });
       }
@@ -187,7 +186,7 @@ const MainChat = () => {
   };
   const sendVidCallInvite = (to_user) => {
     hangUpCall()
-    sendCall('video',to_user)
+    sendCall('video', to_user)
 
   }
   const AnswerCall = (type) => {
@@ -200,16 +199,16 @@ const MainChat = () => {
       socket.emit("answer-vid-call", { from: user?.id, to: clientPeer });
     }
   };
-  
+
   const hangUpCall = () => {
-    if (socket) { 
+    if (socket) {
       socket.emit("call-ended", { to: clientPeer });
       CleanupStates()
     }
   };
   const handleMessageDelete = async (messageId) => {
     if (!messageId) {
-        return
+      return
     }
 
     if (deleteFor === 'foreveryone') {
@@ -217,7 +216,7 @@ const MainChat = () => {
       await deleteMessage(messageId)
       const updatedMessages = messages.filter(msg => msg._id !== messageId)
       setMessages(updatedMessages)
-      if (socket) { 
+      if (socket) {
         socket.emit('message-deleted', { messageId, to: selectedUser.clerkId })
       }
     } else {
@@ -314,7 +313,7 @@ const MainChat = () => {
     if (socket) {
       socket.on("incoming-call", async ({ from, to, type }) => {
         const _from = await fetchUserById(from)
-    
+
         showNotificationIncomingCall(`Incoming call from ${_from.username}`)
         setClientPeer(from);
         setIncomingCall(true);
@@ -322,7 +321,7 @@ const MainChat = () => {
 
       });
       socket.on("user-disconnected", () => {
-     
+
         CleanupStates()
       })
       socket.on('muted', ({ muted }) => {
@@ -331,14 +330,14 @@ const MainChat = () => {
       socket.on('video-status', ({ status }) => {
         setVideoDisabled(status)
       })
-      socket.on('message-deleted', ({ messageId }) => { 
+      socket.on('message-deleted', ({ messageId }) => {
 
         const updatedMessages = messages.filter(msg => msg._id !== messageId)
 
         setMessages(updatedMessages)
       })
       socket.on("call-ended-from", ({ to }) => {
-       
+
         CleanupStates()
 
       });
@@ -355,7 +354,7 @@ const MainChat = () => {
 
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
-               
+
                 setStreamingCall(true);
               });
             });
@@ -379,7 +378,7 @@ const MainChat = () => {
               call.answer(localStream);
               call.on("stream", (remoteStream) => {
                 remoteStreamRef.current = remoteStream;
-                  if (callType === 'sharedisplay') {
+                if (callType === 'sharedisplay') {
                   setIsScreenSharing(true)
 
                 }
@@ -414,7 +413,7 @@ const MainChat = () => {
   const handleEditMessage = async (message) => {
     setMessage(message.content)
 
-  } 
+  }
   return (
     <div
       className=" h-[100vh]"
@@ -449,10 +448,14 @@ const MainChat = () => {
                     <PhoneCall />
                   </Button>
                 </div>
-
               </div>
+
             )}
-            <ModeToggle />
+            {!selectedUser?.clerkId? <div className="flex w-full justify-end">
+
+              <ModeToggle />
+            </div> :
+              <ModeToggle />}
           </div>
           <div className=" flex items-center justify-center">
             {streamingCall && !isRndSelected && (
@@ -473,7 +476,7 @@ const MainChat = () => {
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
-            const decryptedMessage = decryptMessage(message.content)
+            const decryptedMessage = message.content
             return (
 
               <div
@@ -500,7 +503,7 @@ const MainChat = () => {
                     <ContextMenuItem
                       onClick={() => { setIsDeletionDialogOpen(true); setSelectedMessage(message) }}
                     >Delete</ContextMenuItem>
- 
+
                   </ContextMenuContent>
                 </ContextMenu>
 
@@ -526,7 +529,7 @@ const MainChat = () => {
           className="flex items-center w-full border-t"
         >
           <div className="flex gap-2 w-full items-center">
-             <Textarea
+            <Textarea
               className="resize-none min-h-[50px] h-[40px] max-h-[60px] rounded-[40px]"
               onKeyPress={handleEnterPress}
               onKeyDown={(e) => handleEnterPress(e)}
@@ -550,7 +553,7 @@ const MainChat = () => {
       <div></div>
       <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
 
-         
+
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Delete Message</DialogTitle>

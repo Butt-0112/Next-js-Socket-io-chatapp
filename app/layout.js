@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import StateProvider from "@/context/state";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/ChatSidebar";
 import { usePathname } from 'next/navigation'; // Import the hook to get the current path
 import { useContext, useEffect, useState } from "react";
@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
   const [isOpen, setIsOpen] = useState(true)
   const pathname = usePathname(); // Get the current path
   const [isSingleInstance, setIsSingleInstance] = useState(true);
-
+   
   useEffect(() => {
     const instanceKey = 'app-instance';
     const instanceId = Date.now().toString();
@@ -72,9 +72,9 @@ export default function RootLayout({ children }) {
               enableSystem
               disableTransitionOnChange
             >
-              <SidebarProvider>
+              <SidebarProvider >
                 {showSidebar  && <AppSidebar />}
-                {showSidebar && <SidebarTrigger onClick={() => { setIsOpen(!isOpen) }} className={` absolute left-0 z-50 top-3 ${!isOpen && ''} `} />}
+                {showSidebar && <SidebarTrigger onClick={() => { setIsOpen(!isOpen) }} className={` absolute left-0 z-50 top-4 ${!isOpen && ''} `} />}
                 <main className="w-full">
 
                   {
