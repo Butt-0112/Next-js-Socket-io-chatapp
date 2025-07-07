@@ -15,42 +15,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current path
   const [isSingleInstance, setIsSingleInstance] = useState(true);
    
-  useEffect(() => {
-    const instanceKey = 'app-instance';
-    const instanceId = Date.now().toString();
-
-    // Check if another instance is already running
-    if (localStorage.getItem(instanceKey)) {
-      setIsSingleInstance(false);
-      window.close(); // Close the current tab if another instance is running
-    } else {
-      // Set the flag in localStorage
-      localStorage.setItem(instanceKey, instanceId);
-
-      // Clear the flag when the window is closed or unloaded
-      const clearInstance = () => {
-        if (localStorage.getItem(instanceKey) === instanceId) {
-          localStorage.removeItem(instanceKey);
-        }
-      };
-
-      window.addEventListener('beforeunload', clearInstance);
-
-      // Listen for storage events to detect changes from other tabs or windows
-      const handleStorageChange = (event) => {
-        if (event.key === instanceKey && event.newValue !== instanceId) {
-          window.close(); // Close the current tab if another instance is opened
-        }
-      };
-
-      window.addEventListener('storage', handleStorageChange);
-
-      return () => {
-        window.removeEventListener('beforeunload', clearInstance);
-        window.removeEventListener('storage', handleStorageChange);
-      };
-    }
-  }, []);
+  
 
   // List of routes where the sidebar should be hidden 
   const noSidebarRoutes = ['/login', '/signup', '/dashboard'];
