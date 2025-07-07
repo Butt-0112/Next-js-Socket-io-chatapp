@@ -183,16 +183,17 @@ export default function AppSidebar() {
                   :
                   <ul>
                     {users.length > 0 && users.map((user) => (
-                      <div key={user.id} className="flex gap-3 items-center "  >
-                        <div  className='h-full w-full flex justify-between' >
-                          <SidebarMenuButton asChild className="w-full flex items-center gap-2" >
+                      <SidebarMenuItem key={user.id} className="flex gap-3 items-center "  >
+                        <SidebarMenuButton asChild>
+                        <div className='h-full w-full flex justify-between' >
+                          <div  className="w-full flex items-center gap-2" >
 
                             <Avatar>
                               <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
                               <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
                             </Avatar>
                             <span>{user.username || user.email}</span>
-                          </SidebarMenuButton>
+                          </div>
                           <TooltipProvider>
                             {contacts && contacts.length > 7 && contacts.some(e => e.clerkId === user.id) ?
                               <Tooltip>
@@ -216,7 +217,8 @@ export default function AppSidebar() {
                             }
                           </TooltipProvider>
                         </div>
-                      </div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
                     ))}
                   </ul>
                 }
