@@ -30,8 +30,24 @@ import {
   ContextMenuTrigger,
 } from "./ui/context-menu"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label"; 
-import { Avatar, AvatarImage } from "./ui/avatar"; 
+import { Label } from "./ui/label";
+import { Avatar, AvatarImage } from "./ui/avatar";
+import { SidebarTrigger } from "./ui/sidebar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 const fetchUsers = async () => {
   const res = await fetch(`/api/users/user`, {
@@ -46,13 +62,15 @@ const MainChat = () => {
     socket,
     userPeer,
     selectedUser,
+    setSelectedUser,
     user,
     messages,
     setMessages,
     deleteMessage,
     fetchUserById,
     sendNotification,
-    getToken
+    getToken,
+    deleteContact
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
@@ -82,7 +100,7 @@ const MainChat = () => {
   const mainaudioRef = useRef(null)
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
-  const audioRef = useRef(null) 
+  const audioRef = useRef(null)
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -428,17 +446,64 @@ const MainChat = () => {
         className="flex items-center p-[8px] border-b"
         style={{ gridArea: "head" }}
       >
+        <SidebarTrigger />
         <div className="flex flex-col h-full justify-center w-full">
 
           <div className="flex pl-5">
             {selectedUser?.clerkId && (
               <div className="flex justify-between items-center w-full ">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
-                  </Avatar>
-                  <h3 className="font-bold">{selectedUser?.username}</h3>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
+                      </Avatar>
+                      <h3 className="font-bold">{selectedUser?.username}</h3>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className='w-full'>
+                    
+                      <Card className='w-[320px]'>
+                          <CardHeader>
+                            <div className="flex flex-col items-center gap-3">
+                              <Avatar className='size-24'>
+                                <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
+                              </Avatar>
+                              <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                                {selectedUser?.username}</h3>
+                            </div>
+
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            <div className=" flex  gap-1 justify-center">
+                              <Button onClick={() => sendCall('video')} className='flex w-full h-fit flex-col gap-1' variant='secondary'>
+                                <Video />
+                                Video
+                              </Button>
+                              <Button onClick={() => sendCall('audio')} variant='secondary' className='w-full flex h-fit flex-col gap-1'>
+                                <PhoneCall />
+                                Voice
+                              </Button>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className='text-muted-foreground'>Email</Label>
+                              <p className="leading-7 [&:not(:first-child)]:mt-6">
+                                {selectedUser?.email}
+                              </p>
+
+                            </div>
+
+                          </CardContent>
+                          <CardFooter>
+                            <DropdownMenuItem className="focus:bg-transparent">
+                      
+                          <Button onClick={async()=> {await deleteContact(selectedUser.clerkId); setSelectedUser({})}} variant='destructive'>Delete Contact</Button>
+                    </DropdownMenuItem>
+                          </CardFooter>
+                        </Card>
+                   </DropdownMenuContent>
+                </DropdownMenu>
                 <div className="flex">
 
                   <Button onClick={() => sendCall('video')} variant="outline">
@@ -451,7 +516,7 @@ const MainChat = () => {
               </div>
 
             )}
-            {!selectedUser?.clerkId? <div className="flex w-full justify-end">
+            {!selectedUser?.clerkId ? <div className="flex w-full justify-end">
 
               <ModeToggle />
             </div> :

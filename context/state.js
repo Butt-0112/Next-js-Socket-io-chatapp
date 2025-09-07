@@ -12,6 +12,7 @@ import { useUser } from "@clerk/nextjs";
 const StateProvider = ({ children }) => {
   const [socket, setSocket] = useState(null)
   const [users, setUsers] = useState([])
+  const [contacts, setContacts] = useState([])
   // const [user, setUser] = useState({})
   const [selectedUser, setSelectedUser] = useState({})
   const [messages, setMessages] = useState([])
@@ -50,6 +51,28 @@ const StateProvider = ({ children }) => {
     } else if (permission === 'denied') {
       // alert('you denied for the permission')
     }
+  }
+   const deleteContact = async (contactID) => {
+    const response = await fetch(`${API_BASE_URL}/api/users/deleteContact`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+
+      },
+      body: JSON.stringify({
+        contactID: contactID,
+        userId: user.id
+      })
+    })
+    if (response.ok) {
+
+      const json = await response.json()
+      const contacts = json.contacts
+      setContacts( contacts)
+      return contacts
+
+    }
+
   }
   
   useEffect(()=>{
@@ -203,7 +226,7 @@ const StateProvider = ({ children }) => {
     const token = json.token
     return token
   }
-  return <context.Provider value={{getToken,sendNotification,deleteMessage,userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
+  return <context.Provider value={{contacts,setContacts,getToken,deleteContact,sendNotification,deleteMessage,userchanged,setUserChanged,fetchUserById,API_BASE_URL,fetchUser, socket,peers,setPeers,stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
     {children}
   </context.Provider>
 }

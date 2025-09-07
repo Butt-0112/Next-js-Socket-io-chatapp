@@ -21,7 +21,7 @@ import {
 import { context } from "@/context/context"
 import { useContext, useEffect, useState, useCallback } from "react"
 import { Input } from "./ui/input"
-import { Contact, Loader2, PlusCircleIcon, Trash2, X } from "lucide-react"
+import { Contact, Loader, Loader2, PlusCircleIcon, Trash2, X } from "lucide-react"
 import { Button } from "./ui/button"
 import SidebarSkeleton from "./SidebarSkeleton"
 import Link from "next/link"
@@ -35,7 +35,7 @@ import { User2, ChevronUp } from "lucide-react"
 import { SignOutButton } from "@clerk/nextjs"
 
 export default function AppSidebar() {
-  const { selectedUser, user, setSelectedUser } = useContext(context)
+  const { selectedUser, user, setSelectedUser ,deleteContact,contacts,setContacts} = useContext(context)
   const { isLoaded, isSignedIn } = useUser()
   const [queryUsers, setQueryUsers] = useState({ users: [], totalUsers: 0 })
   const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
@@ -44,10 +44,10 @@ export default function AppSidebar() {
  
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
-  const [contacts, setContacts] = useState([])
 
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
+  const [loadingContacts, setLoadingContacts] = useState(false)
   const { API_BASE_URL } = useContext(context)
   const { isMobile, openMobile, setOpenMobile } = useSidebar()
 
@@ -66,7 +66,7 @@ export default function AppSidebar() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/search?query=${searchQuery}`);
       const data = await response.json();
-
+      console.log(data.users, 'searched users')
       if (user) {
         setUsers(data.users.filter(n_user => n_user.id !== user.id))
       }
@@ -105,9 +105,11 @@ export default function AppSidebar() {
   useEffect(() => {
     if (user) {
       const fetchContactsData = async () => {
+        setLoadingContacts(true)
 
         const contacts = await fetchContacts()
         setContacts(contacts)
+        setLoadingContacts(false)
       }
       fetchContactsData()
 
@@ -142,33 +144,17 @@ export default function AppSidebar() {
 
     }
   }
-  const deleteContact = async (contact) => {
-    const response = await fetch(`${API_BASE_URL}/api/users/deleteContact`, {
-      method: "DELETE",
-      headers: {
-        'Content-Type': 'application/json',
-
-      },
-      body: JSON.stringify({
-        contactID: contact.clerkId,
-        userId: user.id
-      })
-    })
-    if (response.ok) {
-
-      const json = await response.json()
-      const contacts = json.contacts
-      setContacts(contacts)
-
-    }
-
+  const handleDeleteContact = async(contact)=>{
+     await deleteContact(contact)
+    
+    
   }
  
   return (
     <>
       {isPageLoading ? <SidebarSkeleton /> : <Sidebar collapsible="offcanvas">
         <SidebarHeader >
-          <h3 className="font-bold pt-2 pl-6">Chats</h3>
+          <h3 className="font-bold pt-2 ">Chats</h3>
           <SidebarMenu>
             <Input value={query} onChange={handleInputChange} placeholder="Search by username" />
           </SidebarMenu>
@@ -195,11 +181,11 @@ export default function AppSidebar() {
                             <span>{user.username || user.email}</span>
                           </div>
                           <TooltipProvider>
-                            {contacts && contacts.length > 7 && contacts.some(e => e.clerkId === user.id) ?
+                            {contacts && contacts.length > 0 && contacts.some(e => e.clerkId === user.id) ?
                               <Tooltip>
                                 <TooltipTrigger>
 
-                                  <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                                  <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user.id) }} className="text-red-500   hover:text-red-400   " />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>remove from contacts</p>
@@ -244,7 +230,7 @@ export default function AppSidebar() {
                         <Tooltip>
                           <TooltipTrigger>
 
-                            <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await deleteContact(user) }} className="text-red-500   hover:text-red-400   " />
+                            <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await handleDeleteContact(user.clerkId); setSelectedUser({}) }} className="text-red-500   hover:text-red-400   " />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p className="font-semibold">
@@ -256,7 +242,10 @@ export default function AppSidebar() {
                       </TooltipProvider>
                     </div>
                   </SidebarMenuItem>
-                }) : <p>No contacts found</p>}
+                }) : !isLoaded ||loadingContacts? <div className="flex justify-center py-4">
+                  <Loader2 className="animate-spin" /> 
+                  </div>
+                  : <p>No contacts found</p>}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild onClick={()=>console.log('he clicked me')}>click me</SidebarMenuButton>
                 </SidebarMenuItem>
