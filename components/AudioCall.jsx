@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardDescription, CardHeader, CardTitle }
 import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video, VideoOff } from 'lucide-react'
 import '../css/videoaudio.css'
 import Image from 'next/image'
+import { useSidebar } from './ui/sidebar'
 
 const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, stream, muted, EnableVid, DisableVid, videoDisabled, handleMute, handleUnmute, screenShare, isScreenSharing, localStream, callType, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
 

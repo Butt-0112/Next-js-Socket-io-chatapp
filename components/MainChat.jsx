@@ -32,7 +32,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { Avatar, AvatarImage } from "./ui/avatar";
-import { SidebarTrigger } from "./ui/sidebar";
+import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 import {
   Card,
   CardContent,
@@ -47,6 +47,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import MobileAudioCall from "./MobileCall";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 const fetchUsers = async () => {
@@ -101,6 +102,7 @@ const MainChat = () => {
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
   const audioRef = useRef(null)
+  const { isMobile } = useSidebar()
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -449,17 +451,17 @@ const MainChat = () => {
         <SidebarTrigger />
         <div className="flex flex-col h-full justify-center w-full">
 
-          <div className="flex pl-5">
+          <div className="flex items-center">
             {selectedUser?.clerkId && (
-              <div className="flex justify-between items-center w-full ">
+              <div className="flex justify-between items-center w-full">
                 <DropdownMenu>
                   <DropdownMenuTrigger>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 ">
                       <Avatar>
                         <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
                       </Avatar>
-                      <h3 className="font-bold">{selectedUser?.username}</h3>
+                      <h3 className="font-bold text-ellipsis ">{selectedUser?.username}</h3>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className='w-full'>
@@ -658,8 +660,35 @@ const MainChat = () => {
             className={`  min-w-[400px] min-h-[400px] ${!isRndSelected && " cursor-pointer "
               }`}
           >
-            {
-              <AudioCall
+            { isMobile? (<MobileAudioCall
+            answerCall={AnswerCall}
+                incomingCall={incomingCall}
+                isRndSelected={isRndSelected}
+                isCalling={callingToPeer}
+                id={user?.id}
+                hangUp={hangUpCall}
+                clientPeer={clientPeer}
+                stream={remoteStreamRef.current}
+                sendVidCallInvite={sendVidCallInvite}
+                callType={callType}
+                localStream={localStreamRef.current}
+                screenShare={screenShare}
+                isScreenSharing={isScreenSharing}
+                handleMute={handleMute}
+                handleUnmute={handleUnmute}
+                muted={muted}
+                DisableVid={handleDisableVid}
+                EnableVid={handleEnableVid}
+                videoDisabled={videoDisabled}
+                mainlocalVidRef={mainlocalVidRef}
+                mainaudioRef={mainaudioRef}
+                audioRef={audioRef}
+                localVidRef={localVidRef}
+              
+             />
+            )
+            
+:              <AudioCall
                 answerCall={AnswerCall}
                 incomingCall={incomingCall}
                 isRndSelected={isRndSelected}
