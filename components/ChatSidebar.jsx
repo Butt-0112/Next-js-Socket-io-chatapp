@@ -30,18 +30,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import debounce from "lodash.debounce";
 import { useUser } from "@clerk/nextjs"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { User2, ChevronUp } from "lucide-react"
 import { SignOutButton } from "@clerk/nextjs"
+import { ModeToggle } from "./ModeToggle"
+import { useTheme } from "next-themes"
 
 export default function AppSidebar() {
-  const { selectedUser, user, setSelectedUser ,deleteContact,contacts,setContacts} = useContext(context)
+  const { selectedUser, user, setSelectedUser, deleteContact, contacts, setContacts } = useContext(context)
   const { isLoaded, isSignedIn } = useUser()
   const [queryUsers, setQueryUsers] = useState({ users: [], totalUsers: 0 })
   const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
   const [filteredUsers, setFilteredUsers] = useState([]); // Stores locally filtered results
   // const [user,setUser ] = useState({})
- 
+const {setTheme } = useTheme()
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [showLoader, setShowLoader] = useState({ id: '', val: false })
 
@@ -144,12 +146,12 @@ export default function AppSidebar() {
 
     }
   }
-  const handleDeleteContact = async(contact)=>{
-     await deleteContact(contact)
-    
-    
+  const handleDeleteContact = async (contact) => {
+    await deleteContact(contact)
+
+
   }
- 
+
   return (
     <>
       {isPageLoading ? <SidebarSkeleton /> : <Sidebar collapsible="offcanvas">
@@ -171,38 +173,38 @@ export default function AppSidebar() {
                     {users.length > 0 && users.map((user) => (
                       <SidebarMenuItem key={user.id} className="flex gap-3 items-center "  >
                         <SidebarMenuButton asChild>
-                        <div className='h-full w-full flex justify-between' >
-                          <div  className="w-full flex items-center gap-2" >
+                          <div className='h-full w-full flex justify-between' >
+                            <div className="w-full flex items-center gap-2" >
 
-                            <Avatar>
-                              <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                              <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
-                            </Avatar>
-                            <span>{user.username || user.email}</span>
+                              <Avatar>
+                                <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
+                                <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
+                              </Avatar>
+                              <span>{user.username || user.email}</span>
+                            </div>
+                            <TooltipProvider>
+                              {contacts && contacts.length > 0 && contacts.some(e => e.clerkId === user.id) ?
+                                <Tooltip>
+                                  <TooltipTrigger>
+
+                                    <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user.id) }} className="text-red-500   hover:text-red-400   " />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>remove from contacts</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                : <Tooltip>
+                                  <TooltipTrigger>
+
+                                    <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Add to contacts</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              }
+                            </TooltipProvider>
                           </div>
-                          <TooltipProvider>
-                            {contacts && contacts.length > 0 && contacts.some(e => e.clerkId === user.id) ?
-                              <Tooltip>
-                                <TooltipTrigger>
-
-                                  <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user.id) }} className="text-red-500   hover:text-red-400   " />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>remove from contacts</p>
-                                </TooltipContent>
-                              </Tooltip>
-                              : <Tooltip>
-                                <TooltipTrigger>
-
-                                  <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Add to contacts</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            }
-                          </TooltipProvider>
-                        </div>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
@@ -216,7 +218,7 @@ export default function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu >
                 {contacts && contacts.length > 0 ? contacts.map((user, index) => {
-                  return <SidebarMenuItem onClick={() => {setSelectedUser(user);handleClick()}} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
+                  return <SidebarMenuItem onClick={() => { setSelectedUser(user); handleClick() }} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
                     <div id="user-item" className='h-full w-full flex justify-between'>
                       <div className="w-full flex items-center gap-2">
 
@@ -242,12 +244,12 @@ export default function AppSidebar() {
                       </TooltipProvider>
                     </div>
                   </SidebarMenuItem>
-                }) : !isLoaded ||loadingContacts? <div className="flex justify-center py-4">
-                  <Loader2 className="animate-spin" /> 
-                  </div>
+                }) : !isLoaded || loadingContacts ? <div className="flex justify-center py-4">
+                  <Loader2 className="animate-spin" />
+                </div>
                   : <p>No contacts found</p>}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild onClick={()=>console.log('he clicked me')}>click me</SidebarMenuButton>
+                  <SidebarMenuButton asChild onClick={() => console.log('he clicked me')}>click me</SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
@@ -270,8 +272,8 @@ export default function AppSidebar() {
                     <Avatar>
                       <AvatarImage src={user?.imageUrl} alt={user?.username} />
                     </Avatar>
-                      {user?.username || user?.email}
-                    
+                    {user?.username || user?.email}
+
                     <ChevronUp className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
@@ -279,15 +281,26 @@ export default function AppSidebar() {
                   side="top"
                   className="w-[--radix-popper-anchor-width]"
                 >
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Toggle Theme</DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem onClick={()=>setTheme('light')}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>setTheme('dark')}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>setTheme('system')}>System</DropdownMenuItem>
+                        
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
                   <DropdownMenuItem asChild>
-                  <Link href={'/dashboard'} >
-                    <span>Account</span>
-                  </Link>
+                    <Link href={'/dashboard'} >
+                      <span>Account</span>
+                    </Link>
                   </DropdownMenuItem>
-                  
+
                   <DropdownMenuItem >
                     <SignOutButton className='w-full text-start' />
- 
+
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

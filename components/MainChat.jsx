@@ -448,7 +448,7 @@ const MainChat = () => {
         className="flex items-center p-[8px] border-b"
         style={{ gridArea: "head" }}
       >
-        <SidebarTrigger />
+        <SidebarTrigger className='pr-2' />
         <div className="flex flex-col h-full justify-center w-full">
 
           <div className="flex items-center">
@@ -518,11 +518,11 @@ const MainChat = () => {
               </div>
 
             )}
-            {!selectedUser?.clerkId ? <div className="flex w-full justify-end">
+            {/* {!selectedUser?.clerkId ? <div className="flex w-full justify-end">
 
               <ModeToggle />
             </div> :
-              <ModeToggle />}
+              <ModeToggle />} */}
           </div>
           <div className=" flex items-center justify-center">
             {streamingCall && !isRndSelected && (
@@ -660,35 +660,7 @@ const MainChat = () => {
             className={`  min-w-[400px] min-h-[400px] ${!isRndSelected && " cursor-pointer "
               }`}
           >
-            { isMobile? (<MobileAudioCall
-            answerCall={AnswerCall}
-                incomingCall={incomingCall}
-                isRndSelected={isRndSelected}
-                isCalling={callingToPeer}
-                id={user?.id}
-                hangUp={hangUpCall}
-                clientPeer={clientPeer}
-                stream={remoteStreamRef.current}
-                sendVidCallInvite={sendVidCallInvite}
-                callType={callType}
-                localStream={localStreamRef.current}
-                screenShare={screenShare}
-                isScreenSharing={isScreenSharing}
-                handleMute={handleMute}
-                handleUnmute={handleUnmute}
-                muted={muted}
-                DisableVid={handleDisableVid}
-                EnableVid={handleEnableVid}
-                videoDisabled={videoDisabled}
-                mainlocalVidRef={mainlocalVidRef}
-                mainaudioRef={mainaudioRef}
-                audioRef={audioRef}
-                localVidRef={localVidRef}
-              
-             />
-            )
-            
-:              <AudioCall
+               <AudioCall
                 answerCall={AnswerCall}
                 incomingCall={incomingCall}
                 isRndSelected={isRndSelected}
@@ -713,7 +685,7 @@ const MainChat = () => {
                 audioRef={audioRef}
                 localVidRef={localVidRef}
               />
-            }
+          
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useSidebar } from './ui/sidebar'
 
 const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, stream, muted, EnableVid, DisableVid, videoDisabled, handleMute, handleUnmute, screenShare, isScreenSharing, localStream, callType, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
+  const { isMobile } = useSidebar()
 
   const { fetchUserById } = useContext(context)
   const [user, setUser] = useState({})
@@ -65,13 +66,11 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   }
  
   return (
-
-    <div className='max-w-screen-lg '>
+    <div className={isMobile ? 'fixed inset-0  h-screen z-50' : 'max-w-screen-lg'}>
       {incomingCall && <audio ref={ringtoneRef} className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
-
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
-      <Card className='px-2 py-2 h-full'>
+      <Card className={isMobile ? 'h-screen w-full flex flex-col justify-between bg-black' : 'px-2 py-2 h-full'}>
           {(incomingCall || isCalling) &&
         <CardHeader className='px-2 py-2'>
 
@@ -101,11 +100,11 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
           </div>
         </div> : stream && <audio ref={audioRef} autoPlay className='hidden'></audio>}
 
-        <Card className='dark:bg-zinc-900 bg-zinc-400' >
+        <Card className='dark:bg-zinc-900 bg-zinc-400 h-full' >
 
           {stream && hasVideo ?
             (
-              <div className='max-h-[70vh]'>
+              <div className=''>
                 {
                   selected === userID ?
                     <div className=" ">
@@ -170,7 +169,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
           </button>
 
         </div>}
-        {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2  mt-2 py-3'>
+        {isRndSelected && incomingCall && <div className='flex items-center justify-center gap-2 py-3'>
 
           <button onClick={() => answerCall(callType)} className="px-4 py-2 bg-green-500 text-white rounded-lg   w-full justify-center flex hover:bg-green-700">
             <Phone />
