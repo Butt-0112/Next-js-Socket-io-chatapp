@@ -460,8 +460,7 @@ const MainChat = () => {
   }
   useEffect(() => {
     function updateHeight() {
-      const keyboardHeight = window.innerHeight - window.visualViewport.height
-      const vh = window.innerHeight - keyboardHeight;
+      const vh = window.visualViewport.height
       console.log(vh, 'vh')
       document.querySelector('#chat-root').style.height = vh + 'px';
     }
@@ -672,7 +671,7 @@ const MainChat = () => {
       </div>
       {selectedUser.clerkId && (
         <div
-          className="flex items-center w-full border-t"
+          className="flex flex-shrink-0 items-center w-full border-t"
         >
           <div className="flex gap- px-4 w-full items-center">
             <Textarea
@@ -698,7 +697,6 @@ const MainChat = () => {
           </div>
         </div>
       )}
-      <div></div>
       <Dialog open={isDeletionDialogOpen} onOpenChange={setIsDeletionDialogOpen}>
 
 
