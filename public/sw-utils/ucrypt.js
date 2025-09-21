@@ -1,18 +1,5 @@
-import CryptoJS from 'crypto-js';
-import * as sodium from "libsodium-wrappers";
-
-export const encryptMessage = (message) => {
-  const secretKey = process.env.SECRET_KEY; // Use a secure key from environment variables
-  console.log(secretKey)
-  return CryptoJS.AES.encrypt(message, secretKey).toString();
-};
-
-export const decryptMessage = (encryptedMessage) => {
-  const secretKey = process.env.SECRET_KEY; // Use a secure key from environment variables
-  const bytes = CryptoJS.AES.decrypt(encryptedMessage, secretKey);
-  return bytes.toString(CryptoJS.enc.Utf8);
-};
-export const decryptMessageForCurrentUser = async (messageDoc, currentUserId, privateKeyBase64, publicKeyBase64) => {
+importScripts("https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.7.15/dist/modules/libsodium-wrappers.min.js")
+const decryptMessageForCurrentUser = async (messageDoc, currentUserId, privateKeyBase64, publicKeyBase64) => {
     await sodium.ready;
 
     const entry = messageDoc.ciphertexts?.[currentUserId];

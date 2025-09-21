@@ -7,6 +7,8 @@ import { ModeToggle } from "./ModeToggle";
 import { Textarea } from "./ui/textarea";
 import {
 
+  Check,
+  CheckCheck,
   PhoneCall,
   SendHorizonal,
   Video,
@@ -70,8 +72,13 @@ const MainChat = () => {
     deleteMessage,
     fetchUserById,
     sendNotification,
+    sendMessage,
     getToken,
-    deleteContact
+    messageStatuses,
+    handleContactClick,
+    deleteContact,
+    decryptMessagesArray,
+    userStatus
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
@@ -102,6 +109,7 @@ const MainChat = () => {
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
   const audioRef = useRef(null)
+  const [lastMessage, setLastMessage] = useState({})
   const { isMobile } = useSidebar()
 
   const CleanupStates = () => {
@@ -128,20 +136,25 @@ const MainChat = () => {
     if (message.trim() !== '' && message.length > 0) {
       // const encryptedMessage = encryptMessage(message)
       if (selectedUser) {
-        socket.emit("private message", {
-          content: message,
-          to: selectedUser.clerkId,
-        });
+        // socket.emit("private message", {
+        //   content: message,
+        //   to: selectedUser.clerkId,
+        //   timestamp:Date.now()
+        // });
         // setMessages((prev) => [...prev, { content: message, from: user.id }]);
         setMessage("");
         setSelectedMessage(null)
         try {
 
-          const token = await getToken(selectedUser.clerkId)
-          sendNotification(token, user.username, message, 'https://next-js-socket-io-chatapp.vercel.app/')
+          //   const token = await getToken(selectedUser.clerkId)
+          //   sendNotification(token, user.username, message, 'https://next-js-socket-io-chatapp.vercel.app/')
+          await sendMessage(message, selectedUser.clerkId)
+          setLastMessage(message)
         } catch (error) {
-          console.log('an error occured')
+          console.log('an error occured', error)
+          throw new Error(error)
         }
+
       }
     }
   };
@@ -149,6 +162,9 @@ const MainChat = () => {
     // Scroll to the bottom whenever messages change
     if (messageContainerRef.current) {
       messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+    if (selectedUser?.clerkId) {
+      handleContactClick(selectedUser.clerkId)
     }
   }, [messages]);
   const handleMute = () => {
@@ -295,8 +311,14 @@ const MainChat = () => {
       if (response.ok) {
         const json = await response.json();
         const filteredMessages = json.filter(msg => msg.deletedBy[0] !== user?.id)
+        const recipientPrivateKeyBase64 = localStorage.getItem('privateKey');
+        const recipientPublicKeyBase64 = localStorage.getItem('publicKey');
 
-        setMessages(filteredMessages);
+        // Suppose `messages` is your array of encrypted message documents
+        const decryptedMessages = await decryptMessagesArray(filteredMessages, user.id, recipientPrivateKeyBase64, recipientPublicKeyBase64);
+  
+
+        setMessages(decryptedMessages);
       }
     };
     if (selectedUser && selectedUser.clerkId && user && user.id) {
@@ -334,7 +356,7 @@ const MainChat = () => {
       socket.on("incoming-call", async ({ from, to, type }) => {
         const _from = await fetchUserById(from)
 
-        showNotificationIncomingCall(`Incoming call from ${_from.username}`)
+        // showNotificationIncomingCall(`Incoming call from ${_from.username}`)
         setClientPeer(from);
         setIncomingCall(true);
         setCallType(type)
@@ -448,7 +470,7 @@ const MainChat = () => {
         className="flex items-center p-[8px] border-b"
         style={{ gridArea: "head" }}
       >
-        <SidebarTrigger className='pr-2' />
+        <SidebarTrigger className='mr-2' />
         <div className="flex flex-col h-full justify-center w-full">
 
           <div className="flex items-center">
@@ -465,46 +487,60 @@ const MainChat = () => {
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className='w-full'>
-                    
-                      <Card className='w-[320px]'>
-                          <CardHeader>
-                            <div className="flex flex-col items-center gap-3">
-                              <Avatar className='size-24'>
-                                <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
-                              </Avatar>
-                              <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                                {selectedUser?.username}</h3>
-                            </div>
 
-                          </CardHeader>
-                          <CardContent className="space-y-2">
-                            <div className=" flex  gap-1 justify-center">
-                              <Button onClick={() => sendCall('video')} className='flex w-full h-fit flex-col gap-1' variant='secondary'>
-                                <Video />
-                                Video
-                              </Button>
-                              <Button onClick={() => sendCall('audio')} variant='secondary' className='w-full flex h-fit flex-col gap-1'>
-                                <PhoneCall />
-                                Voice
-                              </Button>
-                            </div>
-                            <div className="space-y-1">
-                              <Label className='text-muted-foreground'>Email</Label>
-                              <p className="leading-7 [&:not(:first-child)]:mt-6">
-                                {selectedUser?.email}
-                              </p>
+                    <Card className='w-[320px]'>
+                      <CardHeader>
+                        <div className="flex flex-col items-center gap-3">
+                          <Avatar className='size-24'>
+                            <AvatarImage src={selectedUser?.imageUrl} alt={selectedUser?.username} />
+                          </Avatar>
+                          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                            {selectedUser?.username}</h3>
+                        </div>
 
-                            </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className=" flex  gap-1 justify-center">
+                          <Button onClick={() => sendCall('video')} className='flex w-full h-fit flex-col gap-1' variant='secondary'>
+                            <Video />
+                            Video
+                          </Button>
+                          <Button onClick={() => sendCall('audio')} variant='secondary' className='w-full flex h-fit flex-col gap-1'>
+                            <PhoneCall />
+                            Voice
+                          </Button>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className='text-muted-foreground'>Last Seen</Label>
+                          <p className="leading-7 [&:not(:first-child)]:mt-6">
+                            {userStatus[selectedUser?.clerkId]?.status==='online' ? (
+                              <span className="text-green-500">Online</span>
+                            ) : (
+                              <span>
+                                Last seen {new Date(userStatus[selectedUser?.clerkId]?.lastSeen).toLocaleString()}
+                              </span>
+                            )}
 
-                          </CardContent>
-                          <CardFooter>
-                            <DropdownMenuItem className="focus:bg-transparent">
-                      
-                          <Button onClick={async()=> {await deleteContact(selectedUser.clerkId); setSelectedUser({})}} variant='destructive'>Delete Contact</Button>
-                    </DropdownMenuItem>
-                          </CardFooter>
-                        </Card>
-                   </DropdownMenuContent>
+                          </p>
+
+                        </div>
+                        <div className="space-y-1">
+                          <Label className='text-muted-foreground'>Email</Label>
+                          <p className="leading-7 [&:not(:first-child)]:mt-6">
+                            {selectedUser?.email}
+                          </p>
+
+                        </div>
+
+                      </CardContent>
+                      <CardFooter>
+                        <DropdownMenuItem className="focus:bg-transparent">
+
+                          <Button onClick={async () => { await deleteContact(selectedUser.clerkId); setSelectedUser({}) }} variant='destructive'>Delete Contact</Button>
+                        </DropdownMenuItem>
+                      </CardFooter>
+                    </Card>
+                  </DropdownMenuContent>
                 </DropdownMenu>
                 <div className="flex">
 
@@ -544,13 +580,19 @@ const MainChat = () => {
           messages.length > 0 &&
           messages.map((message, index) => {
             const decryptedMessage = message.content
+            const messageStatus = messageStatuses[message._id] || {
+              sent: message.status.sent,
+              delivered: message.status.delivered,
+              read: message.status.read
+            };
+            console.log(messageStatus)
             return (
 
               <div
                 className={`${message.from === user.id
                   ? "bg-slate-400 text-white dark:bg-zinc-900"
                   : "bg-slate-500 text-white dark:bg-black"
-                  } dark:text-white`}
+                  } dark:text-white min-w-[150px]`}
                 style={{
                   float: message.from === user.id ? "right" : "left",
                   clear: "both", // Ensure proper stacking
@@ -564,7 +606,34 @@ const MainChat = () => {
                 key={index + 1}
               >
                 <ContextMenu>
-                  <ContextMenuTrigger onClick={() => setSelectedMessage(message)}>{decryptedMessage}</ContextMenuTrigger>
+                  <ContextMenuTrigger onClick={() => setSelectedMessage(message)}>
+                    <div className="flex justify-between gap-3">
+                      <div className="">
+                        {decryptedMessage}
+                      </div>
+                      <div className="flex leading-tight justify-end items-end gap-1 text-[0.65rem] opacity-70">
+                        <span>
+                          {new Date(message.timestamp).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
+                        </span>
+                        {message.from === user.id && (
+                          <span>
+                            {messageStatus.delivered && messageStatus.read ? (
+                              <CheckCheck className="h-3 w-3 inline text-sky-600" />
+                            ) : messageStatus.delivered ? (
+                              <CheckCheck className="h-3 w-3 inline" />
+                            ) : (
+                              <Check className="h-3 w-3 inline" />
+
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </ContextMenuTrigger>
                   <ContextMenuContent>
 
                     <ContextMenuItem
@@ -573,7 +642,6 @@ const MainChat = () => {
 
                   </ContextMenuContent>
                 </ContextMenu>
-
               </div>
             );
 
@@ -595,9 +663,9 @@ const MainChat = () => {
           }}
           className="flex items-center w-full border-t"
         >
-          <div className="flex gap-2 w-full items-center">
+          <div className="flex gap- px-4 w-full items-center">
             <Textarea
-              className="resize-none min-h-[50px] h-[40px] max-h-[60px] rounded-[40px]"
+              className="resize-none min-h-[50px] h-[40px] max-h-[60px] border-none focus-visible:ring-0 rounded-[40px]"
               onKeyPress={handleEnterPress}
               onKeyDown={(e) => handleEnterPress(e)}
               value={message}
@@ -605,8 +673,9 @@ const MainChat = () => {
               placeholder="Type a message..."
             />
             <Button
-              className=" h-[50px] border rounded-[50%]"
+              className="border-none rounded-md"
               variant="outline"
+              size="icon"
               onClick={(e) => {
                 e.preventDefault();
                 onMessage();
@@ -649,43 +718,43 @@ const MainChat = () => {
       </Dialog>
       {(streamingCall || incomingCall || callingToPeer) && (
         <div
-          className={`absolute ${isRndSelected
-            ? "fixed inset-0 h-full w-full flex justify-center items-center"
+          className={`absolute size-full  ${isRndSelected
+            ? "inset-0  flex justify-center items-center"
             : "hidden"
-            } min-w-[200px] min-h-[200px]  `}
+            }   `}
         >
           <div
             ref={windowRef}
             onClick={handleRndClick}
-            className={`  min-w-[400px] min-h-[400px] ${!isRndSelected && " cursor-pointer "
-              }`}
+            className={`  min-w-[320px] min-h-[320px] ${!isRndSelected && " cursor-pointer "
+              } ${isMobile && 'w-full'}`}
           >
-               <AudioCall
-                answerCall={AnswerCall}
-                incomingCall={incomingCall}
-                isRndSelected={isRndSelected}
-                isCalling={callingToPeer}
-                id={user?.id}
-                hangUp={hangUpCall}
-                clientPeer={clientPeer}
-                stream={remoteStreamRef.current}
-                sendVidCallInvite={sendVidCallInvite}
-                callType={callType}
-                localStream={localStreamRef.current}
-                screenShare={screenShare}
-                isScreenSharing={isScreenSharing}
-                handleMute={handleMute}
-                handleUnmute={handleUnmute}
-                muted={muted}
-                DisableVid={handleDisableVid}
-                EnableVid={handleEnableVid}
-                videoDisabled={videoDisabled}
-                mainlocalVidRef={mainlocalVidRef}
-                mainaudioRef={mainaudioRef}
-                audioRef={audioRef}
-                localVidRef={localVidRef}
-              />
-          
+            <AudioCall
+              answerCall={AnswerCall}
+              incomingCall={incomingCall}
+              isRndSelected={isRndSelected}
+              isCalling={callingToPeer}
+              id={user?.id}
+              hangUp={hangUpCall}
+              clientPeer={clientPeer}
+              stream={remoteStreamRef.current}
+              sendVidCallInvite={sendVidCallInvite}
+              callType={callType}
+              localStream={localStreamRef.current}
+              screenShare={screenShare}
+              isScreenSharing={isScreenSharing}
+              handleMute={handleMute}
+              handleUnmute={handleUnmute}
+              muted={muted}
+              DisableVid={handleDisableVid}
+              EnableVid={handleEnableVid}
+              videoDisabled={videoDisabled}
+              mainlocalVidRef={mainlocalVidRef}
+              mainaudioRef={mainaudioRef}
+              audioRef={audioRef}
+              localVidRef={localVidRef}
+            />
+
           </div>
         </div>
       )}

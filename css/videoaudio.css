@@ -19,5 +19,11 @@
     display: block;
   }
 
+  #user-item:focus-visible #del-icon{
+    display: block;
+  }
+  #user-item:active #del-icon{
+    display: block;
+  }
 
   

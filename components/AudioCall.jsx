@@ -5,6 +5,7 @@ import { Import, Loader2, Mic, MicOff, Phone, User2, UserCircle, Video, VideoOff
 import '../css/videoaudio.css'
 import Image from 'next/image'
 import { useSidebar } from './ui/sidebar'
+import { AspectRatio } from './ui/aspect-ratio'
 
 const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, stream, muted, EnableVid, DisableVid, videoDisabled, handleMute, handleUnmute, screenShare, isScreenSharing, localStream, callType, isRndSelected, hangUp, sendVidCallInvite, userID, clientPeer: peerID, isCalling, incomingCall, answerCall }) => {
   const { isMobile } = useSidebar()
@@ -14,6 +15,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   const [isLoading, setIsLoading] = useState(true)
   const hasVideo = stream && stream.getVideoTracks().length > 0;
   const [selected, setSelected] = useState(peerID)
+  const [aspectRatio, setAspectRatio] = React.useState(16 / 9); // default
 
   const ringtoneRef = useRef(null)
   const [mutedbyme, setMutedByMe] = useState(false)
@@ -64,9 +66,16 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
   const toggleVideoStream = () => {
     setToggleVid(!toggleVid)
   }
- 
+  const handleMetadata = React.useCallback(() => {
+    if (mainlocalVidRef.current) {
+      const { videoWidth, videoHeight } = videoRef.current;
+      if (videoWidth && videoHeight) {
+        setAspectRatio(videoWidth / videoHeight);
+      }
+    }
+  }, []);
   return (
-    <div className={isMobile ? 'fixed inset-0  h-screen z-50' : 'max-w-screen-lg'}>
+    <div className='w-full '>
       {incomingCall && <audio ref={ringtoneRef} className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
@@ -104,18 +113,15 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
 
           {stream && hasVideo ?
             (
-              <div className=''>
+                <AspectRatio ratio={aspectRatio} className='overflow-hidden bg-black'>
                 {
                   selected === userID ?
-                    <div className=" ">
-                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainlocalVidRef} autoPlay muted className={`rounded-lg max-h-[70vh] aspect-video`}  ></video>
-                    </div>
+                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainlocalVidRef} autoPlay muted className={`rounded-lg h-full w-full object-contain`}  ></video>
+                    
                     :
-                    <div className="">
-                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainaudioRef} autoPlay muted className={`rounded-lg max-h-[70vh] aspect-video`} ></video>
-                    </div>
+                    <video onContextMenu={(e) => { e.preventDefault() }} ref={mainaudioRef} autoPlay muted className={`rounded-lg h-full w-full object-contain`} ></video>
                 }
-              </div>
+                    </AspectRatio>
             )
             : <div className="flex gap-2  min-h-64 justify-center   flex-col items-center ">
               {user?.imageUrl ? (

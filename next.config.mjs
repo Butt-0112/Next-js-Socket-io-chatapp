@@ -2,7 +2,6 @@
 const nextConfig = {
     env: {
         NEXT_PUBLIC_SOCKET_BACKEND_URL: "https://livechat-ae9c.onrender.com",
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_Y2xlYW4tZWdyZXQtODcuY2xlcmsuYWNjb3VudHMuZGV2JA",
         NEXT_PUBLIC_API_KEY: "AIzaSyA1dQcha91rNqdBOdus07FGtBDp4PTCmW8",
         NEXT_PUBLIC_AUTH_DOMAIN: "livechat-4ea6c.firebaseapp.com",
         NEXT_PUBLIC_PROJECT_ID: "livechat-4ea6c",

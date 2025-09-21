@@ -2,59 +2,34 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
 import { context } from "@/context/context"
 import { useContext, useEffect, useState, useCallback } from "react"
 import { Input } from "./ui/input"
-import { Contact, Loader, Loader2, PlusCircleIcon, Trash2, X } from "lucide-react"
-import { Button } from "./ui/button"
-import SidebarSkeleton from "./SidebarSkeleton"
-import Link from "next/link"
-import RealtimeUserSearch from "./RealtimeUserSearch"
-const API_BASE_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Loader2 } from "lucide-react"
 import debounce from "lodash.debounce";
 import { useUser } from "@clerk/nextjs"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu"
-import { User2, ChevronUp } from "lucide-react"
-import { SignOutButton } from "@clerk/nextjs"
-import { ModeToggle } from "./ModeToggle"
-import { useTheme } from "next-themes"
+import { ContactItem, SearchItem } from "./sidebar-comps/ContactItem"
+import { SearchResults } from "./sidebar-comps/SearchResults"
+import AccountFooter from "./sidebar-comps/AccountFooter"
 
 export default function AppSidebar() {
-  const { selectedUser, user, setSelectedUser, deleteContact, contacts, setContacts } = useContext(context)
-  const { isLoaded, isSignedIn } = useUser()
-  const [queryUsers, setQueryUsers] = useState({ users: [], totalUsers: 0 })
-  const [loadMore, setLoadMore] = useState({ start: 0, end: 10 })
-  const [filteredUsers, setFilteredUsers] = useState([]); // Stores locally filtered results
-  // const [user,setUser ] = useState({})
-const {setTheme } = useTheme()
-  const [isPageLoading, setIsPageLoading] = useState(false)
-  const [showLoader, setShowLoader] = useState({ id: '', val: false })
-
+  const { selectedUser, user, setSelectedUser, handleContactClick, deleteContact, contacts, setContacts, API_BASE_URL } = useContext(context)
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [loadingContacts, setLoadingContacts] = useState(false)
-  const { API_BASE_URL } = useContext(context)
   const { isMobile, openMobile, setOpenMobile } = useSidebar()
+  const { isLoaded } = useUser()
 
   const handleClick = () => {
-    console.log('in click')
     if (isMobile && openMobile) {
       setOpenMobile(false)
     }
@@ -72,9 +47,6 @@ const {setTheme } = useTheme()
       if (user) {
         setUsers(data.users.filter(n_user => n_user.id !== user.id))
       }
-      //  else {
-      //   console.error(data.error);
-      // }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -120,10 +92,7 @@ const {setTheme } = useTheme()
 
 
   const handleAddContact = async (contact) => {
-    setShowLoader({ id: user.id, val: true })
-    // const response = await fetch('http://localhost:5500/api/users/add-contact',{
-    console.log(user.id)
-    console.log(contact.id)
+
     const response = await fetch(`${API_BASE_URL}/api/users/add-contact`, {
       method: "POST",
       headers: {
@@ -140,175 +109,62 @@ const {setTheme } = useTheme()
       const json = await response.json()
       const contacts = json.contacts
       setContacts(contacts)
-
-      // setUser(contact)
-      setShowLoader({ id: user.id, val: false })
-
     }
   }
   const handleDeleteContact = async (contact) => {
     await deleteContact(contact)
-
+    if (selectedUser.clerkId === contact) {
+      setSelectedUser({})
+    }
 
   }
 
   return (
-    <>
-      {isPageLoading ? <SidebarSkeleton /> : <Sidebar collapsible="offcanvas">
-        <SidebarHeader >
-          <h3 className="font-bold pt-2 ">Chats</h3>
-          <SidebarMenu>
-            <Input value={query} onChange={handleInputChange} placeholder="Search by username" />
-          </SidebarMenu>
-        </SidebarHeader>
-        <SidebarContent>
-          {query.trim() !== '' && <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
 
-                {query.trim().length < 3 ?
-                  <p>please enter at least 3 characters to start searching</p>
-                  :
-                  <ul>
-                    {users.length > 0 && users.map((user) => (
-                      <SidebarMenuItem key={user.id} className="flex gap-3 items-center "  >
-                        <SidebarMenuButton asChild>
-                          <div className='h-full w-full flex justify-between' >
-                            <div className="w-full flex items-center gap-2" >
+    <Sidebar collapsible="offcanvas">
+      <SidebarHeader >
+        <h3 className="font-bold pt-2 ">Chats</h3>
+        <SidebarMenu>
+          <Input value={query} onChange={handleInputChange} placeholder="Search by username" />
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        {query.trim() !== '' && <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
 
-                              <Avatar>
-                                <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                                <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
-                              </Avatar>
-                              <span>{user.username || user.email}</span>
-                            </div>
-                            <TooltipProvider>
-                              {contacts && contacts.length > 0 && contacts.some(e => e.clerkId === user.id) ?
-                                <Tooltip>
-                                  <TooltipTrigger>
+              {query.trim().length < 3 ?
+                <p>please enter at least 3 characters to start searching</p>
+                :
+                <SearchResults users={users} contacts={contacts} onDelete={handleDeleteContact} onAdd={handleAddContact} />
 
-                                    <Trash2 onClick={async (e) => { e.preventDefault(); await deleteContact(user.id) }} className="text-red-500   hover:text-red-400   " />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>remove from contacts</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                                : <Tooltip>
-                                  <TooltipTrigger>
-
-                                    <PlusCircleIcon onClick={async (e) => { e.preventDefault(); await handleAddContact(user) }} className="text-zinc-500 dark:hover:text-white hover:text-zinc-400" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Add to contacts</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              }
-                            </TooltipProvider>
-                          </div>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </ul>
-                }
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>}
-          <SidebarGroup>
-            <h3 className="font-semibold text-sm">Contacts</h3>
-            <SidebarGroupContent>
-              <SidebarMenu >
-                {contacts && contacts.length > 0 ? contacts.map((user, index) => {
-                  return <SidebarMenuItem onClick={() => { setSelectedUser(user); handleClick() }} key={user.clerkId} className="flex hover:bg-zinc-100 dark:hover:bg-zinc-700 px-2 py-2 rounded-lg cursor-pointer gap-3 items-center ">
-                    <div id="user-item" className='h-full w-full flex justify-between'>
-                      <div className="w-full flex items-center gap-2">
-
-                        <Avatar>
-                          <AvatarImage src={user.imageUrl} alt={user.username || user.email} />
-                          <AvatarFallback>{user.username || user.firstName} </AvatarFallback>
-                        </Avatar>
-                        <span>{user.username || user.email}</span>
-                      </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-
-                            <Trash2 id="del-icon" onClick={async (e) => { e.preventDefault(); await handleDeleteContact(user.clerkId); setSelectedUser({}) }} className="text-red-500   hover:text-red-400   " />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="font-semibold">
-
-                              delete contact
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </SidebarMenuItem>
-                }) : !isLoaded || loadingContacts ? <div className="flex justify-center py-4">
-                  <Loader2 className="animate-spin" />
-                </div>
-                  : <p>No contacts found</p>}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild onClick={() => console.log('he clicked me')}>click me</SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        {/* <SidebarFooter>
-          <Avatar>
-            <AvatarImage src={user?.imageUrl} alt={user?.username} />
-          </Avatar>
-          <Link href={'/dashboard'} >
-            {user?.username || user?.email}
-          </Link>
-        </SidebarFooter> */}
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton className='h-full'>
-                    <Avatar>
-                      <AvatarImage src={user?.imageUrl} alt={user?.username} />
-                    </Avatar>
-                    {user?.username || user?.email}
-
-                    <ChevronUp className="ml-auto" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  side="top"
-                  className="w-[--radix-popper-anchor-width]"
+              }
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>}
+        <SidebarGroup>
+          <h3 className="font-semibold text-sm">Contacts</h3>
+          <SidebarGroupContent>
+            <SidebarMenu >
+              {contacts && contacts.length > 0 ? contacts.map((user, index) => {
+                return <SidebarMenuItem key={index}
                 >
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Toggle Theme</DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem onClick={()=>setTheme('light')}>Light</DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>setTheme('dark')}>Dark</DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>setTheme('system')}>System</DropdownMenuItem>
-                        
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuItem asChild>
-                    <Link href={'/dashboard'} >
-                      <span>Account</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  <SidebarMenuButton id='user-item' className='size-full' onClick={() => { setSelectedUser(user); handleClick(); handleContactClick(user.clerkId) }} key={user.clerkId}
+                  >
+                    <ContactItem user={user} onDelete={handleDeleteContact} />
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              }) : !isLoaded || loadingContacts ? <div className="flex justify-center py-4">
+                <Loader2 className="animate-spin" />
+              </div>
+                : <p>No contacts found</p>}
 
-                  <DropdownMenuItem >
-                    <SignOutButton className='w-full text-start' />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <AccountFooter user={user} />
+    </Sidebar>
 
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-
-      </Sidebar>}
-    </>
   )
 }

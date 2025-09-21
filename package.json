@@ -30,6 +30,8 @@
     "express-validator": "^7.2.0",
     "firebase": "^9.10.0",
     "formidable": "^3.5.2",
+    "idb": "^8.0.3",
+    "libsodium-wrappers": "^0.7.15",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.459.0",
     "next": "15.0.3",
