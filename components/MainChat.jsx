@@ -112,6 +112,7 @@ const MainChat = () => {
   const [lastMessage, setLastMessage] = useState({})
   const { isMobile } = useSidebar()
  const inputRef = useRef(null);
+ const mainContainerRef = useRef(null)
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -460,7 +461,8 @@ const MainChat = () => {
   useEffect(() => {
     const container = messageContainerRef.current;
     const input = inputRef.current;
-    if (!container || !input) return;
+    const mainContainer = mainContainerRef.current
+    if (!container || !input ||!mainContainer) return;
 
     // Handler to adjust bottom padding based on the visual viewport (keyboard)
     const adjustForKeyboard = () => {
@@ -470,12 +472,13 @@ const MainChat = () => {
       if (vv) {
         const keyboardHeight = window.innerHeight - vv.height;
         // add a little extra so messages aren't hidden behind the input
-        container.style.paddingBottom = `${keyboardHeight + inputH + 8}px`;
-        // keep it scrolled
-        container.scrollTop = container.scrollHeight;
+        // container.style.paddingBottom = `${keyboardHeight + inputH + 8}px`;
+        // // keep it scrolled
+        // container.scrollTop = container.scrollHeight;
+        mainContainer.style.height= window.innerHeight- keyboardHeight
       } else {
         // fallback: no visualViewport (older safari) - ensure a minimal padding
-        container.style.paddingBottom = `${inputH + 8}px`;
+        // container.style.paddingBottom = `${inputH + 8}px`;
       }
     };
 
@@ -511,7 +514,7 @@ const MainChat = () => {
   return (
     <div
       className="flex flex-col w-full h-[100dvh] min-h-0"
-    
+      ref={mainContainerRef}
     >
       <div
         className="flex items-center p-[8px] border-b"
