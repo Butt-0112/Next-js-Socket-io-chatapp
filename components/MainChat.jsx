@@ -458,7 +458,7 @@ const MainChat = () => {
   }
   return (
     <div
-      className=" h-[100vh]"
+      className=" h-[100dvh]"
       style={{
         display: "grid",
         gridTemplateRows: "1fr 9fr 1fr",
