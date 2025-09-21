@@ -111,6 +111,7 @@ const MainChat = () => {
   const audioRef = useRef(null)
   const [lastMessage, setLastMessage] = useState({})
   const { isMobile } = useSidebar()
+ const inputRef = useRef(null);
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -711,6 +712,7 @@ const MainChat = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
+              ref={inputRef}
             />
             <Button
               className="border-none rounded-md"
