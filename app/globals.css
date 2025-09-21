@@ -12,7 +12,10 @@ body {
   overflow-y: hidden;
   width: 100vw;
 }
+#chat-root{
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 
+}
 /* @layer base {
   :root {
     --background: 0 0% 100%;
