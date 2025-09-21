@@ -459,23 +459,16 @@ const MainChat = () => {
 
   }
   useEffect(() => {
-    function updateHeight() {
-      const vh = window.visualViewport.height
-      console.log(vh, 'vh')
-      // document.querySelector('body').style.height = vh + 'px';
-      document.body.style.height = vh + 'px'
-      document.documentElement.style.height = vh + 'px'
-      document.querySelector('#chat-root').style.height = vh + 'px';
-    }
-
-    window.addEventListener('resize', updateHeight);
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', updateHeight);
-      window.visualViewport.addEventListener('scroll', updateHeight);
-    }
-
-    updateHeight();
+function updateVh() {
+  const vh = window.visualViewport
+    ? window.visualViewport.height * 0.01
+    : window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+updateVh();
+window.visualViewport?.addEventListener('resize', updateVh);
+window.visualViewport?.addEventListener('scroll', updateVh);
+window.addEventListener('resize', updateVh);
 
   }, []);
 
@@ -484,6 +477,8 @@ const MainChat = () => {
       className="flex flex-col w-full"
       ref={mainContainerRef}
       id="chat-root"
+      style={{ height: 'calc(var(--vh) * 100)' }}
+  
     >
       <div
         className="flex flex-shrink-0 items-center p-[8px] border-b"
