@@ -480,12 +480,12 @@ const MainChat = () => {
 
   return (
     <div
-      className="flex flex-col w-full h-[100dvh] min-h-0"
+      className="flex flex-col w-full"
       ref={mainContainerRef}
       id="chat-root"
     >
       <div
-        className="flex items-center p-[8px] border-b"
+        className="flex flex-shrink-0 items-center p-[8px] border-b"
         style={{ gridArea: "head" }}
       >
         <SidebarTrigger className='mr-2' />
