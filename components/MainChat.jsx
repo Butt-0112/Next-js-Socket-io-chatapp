@@ -111,8 +111,8 @@ const MainChat = () => {
   const audioRef = useRef(null)
   const [lastMessage, setLastMessage] = useState({})
   const { isMobile } = useSidebar()
- const inputRef = useRef(null);
- const mainContainerRef = useRef(null)
+  const inputRef = useRef(null);
+  const mainContainerRef = useRef(null)
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -318,7 +318,7 @@ const MainChat = () => {
 
         // Suppose `messages` is your array of encrypted message documents
         const decryptedMessages = await decryptMessagesArray(filteredMessages, user.id, recipientPrivateKeyBase64, recipientPublicKeyBase64);
-  
+
 
         setMessages(decryptedMessages);
       }
@@ -461,21 +461,21 @@ const MainChat = () => {
   useEffect(() => {
     function updateHeight() {
       const keyboardHeight = window.innerHeight - window.visualViewport.height
-  const vh =  window.innerHeight - keyboardHeight;
+      const vh = window.innerHeight - keyboardHeight;
+      console.log(vh, 'vh')
+      document.querySelector('#chat-root').style.height = vh + 'px';
+    }
 
-  document.querySelector('#chat-root').style.height = vh + 'px';
-}
+    window.addEventListener('resize', updateHeight);
 
-window.addEventListener('resize', updateHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateHeight);
+      window.visualViewport.addEventListener('scroll', updateHeight);
+    }
 
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', updateHeight);
-  window.visualViewport.addEventListener('scroll', updateHeight);
-}
+    updateHeight();
 
-updateHeight();
-
-   }, []);
+  }, []);
 
   return (
     <div
@@ -530,7 +530,7 @@ updateHeight();
                         <div className="space-y-1">
                           <Label className='text-muted-foreground'>Last Seen</Label>
                           <p className="leading-7 [&:not(:first-child)]:mt-6">
-                            {userStatus[selectedUser?.clerkId]?.status==='online' ? (
+                            {userStatus[selectedUser?.clerkId]?.status === 'online' ? (
                               <span className="text-green-500">Online</span>
                             ) : (
                               <span>
