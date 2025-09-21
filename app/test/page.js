@@ -1,64 +1,133 @@
 'use client'
-import { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from "react";
 
-export default function TestChat() {
-  const messagesRef = useRef(null);
-
-  // always scroll to bottom when input focuses
+/**
+ * Hook to dynamically set the height of a container
+ * to the current visible viewport height (works with Android keyboard).
+ */
+function useVisualViewportHeight(ref) {
   useEffect(() => {
-    function updateVh() {
+    const el = ref.current;
+    if (!el) return;
+
+    function updateHeight() {
       const vh = window.visualViewport
-        ? window.visualViewport.height * 0.01
-        : window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+        ? window.visualViewport.height
+        : window.innerHeight;
+      el.style.height = vh + "px";
     }
-    updateVh();
-    window.visualViewport?.addEventListener('resize', updateVh);
-    window.visualViewport?.addEventListener('scroll', updateVh);
-    window.addEventListener('resize', updateVh);
+
+    updateHeight();
+
+    window.visualViewport?.addEventListener("resize", updateHeight);
+    window.visualViewport?.addEventListener("scroll", updateHeight);
+    window.addEventListener("resize", updateHeight);
+
     return () => {
-      window.visualViewport?.removeEventListener('resize', updateVh);
-      window.visualViewport?.removeEventListener('scroll', updateVh);
-      window.removeEventListener('resize', updateVh);
+      window.visualViewport?.removeEventListener("resize", updateHeight);
+      window.visualViewport?.removeEventListener("scroll", updateHeight);
+      window.removeEventListener("resize", updateHeight);
     };
+  }, [ref]);
+}
+
+export default function TestChatAndroid() {
+  const chatRef = useRef(null);
+  const messagesRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useVisualViewportHeight(chatRef);
+
+  // auto scroll to bottom on input focus
+  useEffect(() => {
+    function scrollToBottom() {
+      setTimeout(() => {
+        if (messagesRef.current) {
+          messagesRef.current.scrollTop =
+            messagesRef.current.scrollHeight;
+        }
+      }, 300);
+    }
+    const inp = inputRef.current;
+    inp?.addEventListener("focus", scrollToBottom);
+    return () => inp?.removeEventListener("focus", scrollToBottom);
   }, []);
 
   return (
     <div
+      ref={chatRef}
       style={{
-        height: 'calc(var(--vh) * 100)',
-        display: 'flex',
-        flexDirection: 'column'
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        background: "#f9f9f9",
       }}
     >
-      <div style={{ flexShrink: 0, padding: 8, background: '#ddd' }}>
-        Header
+      {/* Header */}
+      <div style={{ flexShrink: 0, padding: 8, background: "#ddd" }}>
+        Header Area
       </div>
 
+      {/* Messages */}
       <div
         ref={messagesRef}
         style={{
           flex: 1,
-          minHeight: 0,
-          overflowY: 'auto',
-          background: '#f9f9f9'
+          minHeight: 0, // crucial
+          overflowY: "auto",
+          padding: 8,
+          background: "#fff",
         }}
       >
         {Array.from({ length: 50 }).map((_, i) => (
-          <div key={i} style={{ padding: 8 }}>
+          <div
+            key={i}
+            style={{
+              marginBottom: 6,
+              padding: 6,
+              background: "#eee",
+              borderRadius: 4,
+            }}
+          >
             Message {i + 1}
           </div>
         ))}
       </div>
 
-      <div style={{ flexShrink: 0, borderTop: '1px solid #ccc' }}>
-        <div style={{ display: 'flex', padding: 8, gap: 8 }}>
-          <textarea
-            style={{ flex: 1, resize: 'none' }}
-            placeholder="Type…"
-          />
-          <button>Send</button>
-        </div>
+      {/* Input area */}
+      <div
+        style={{
+          flexShrink: 0,
+          borderTop: "1px solid #ccc",
+          background: "#fafafa",
+          padding: 8,
+          display: "flex",
+          gap: 8,
+        }}
+      >
+        <textarea
+          ref={inputRef}
+          placeholder="Type a message…"
+          style={{
+            flex: 1,
+            resize: "none",
+            borderRadius: 4,
+            padding: 6,
+            minHeight: 40,
+            maxHeight: 120,
+          }}
+        />
+        <button
+          style={{
+            padding: "6px 12px",
+            background: "#007bff",
+            color: "#fff",
+            borderRadius: 4,
+            border: "none",
+          }}
+        >
+          Send
+        </button>
       </div>
     </div>
   );
