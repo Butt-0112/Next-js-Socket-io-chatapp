@@ -570,7 +570,7 @@ const MainChat = () => {
 
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto" ref={messageContainerRef} >
+      <div className="flex-1 overflow-y-auto min-h-0" ref={messageContainerRef} >
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
