@@ -464,6 +464,7 @@ const MainChat = () => {
       console.log(vh, 'vh')
       // document.querySelector('body').style.height = vh + 'px';
       document.body.style.height = vh + 'px'
+      document.documentElement.style.height = vh + 'px'
       document.querySelector('#chat-root').style.height = vh + 'px';
     }
 
