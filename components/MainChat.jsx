@@ -458,13 +458,8 @@ const MainChat = () => {
   }
   return (
     <div
-      className=" h-[100dvh]"
-      style={{
-        display: "grid",
-        gridTemplateRows: "1fr 9fr 1fr",
-        gridTemplateAreas: "'head''main''foot'",
-        width: "calc(100vw-14rem)",
-      }}
+      className="flex flex-col w-full h-[100dvh]"
+    
     >
       <div
         className="flex items-center p-[8px] border-b"
@@ -575,7 +570,7 @@ const MainChat = () => {
 
         </div>
       </div>
-      <div className="h-[100%]" ref={messageContainerRef} style={{ gridArea: "main", overflowY: "auto" }}>
+      <div className="flex-1 overflow-y-auto" ref={messageContainerRef} >
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
@@ -655,12 +650,6 @@ const MainChat = () => {
       </div>
       {selectedUser.clerkId && (
         <div
-          style={{
-            gridArea: "foot",
-            position: "sticky",
-            bottom: "0",
-            backdropFilter: "blur(100px)",
-          }}
           className="flex items-center w-full border-t"
         >
           <div className="flex gap- px-4 w-full items-center">
