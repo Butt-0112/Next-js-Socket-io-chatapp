@@ -463,6 +463,7 @@ const MainChat = () => {
       const vh = window.visualViewport.height
       console.log(vh, 'vh')
       document.querySelector('body').style.height = vh + 'px';
+      document.querySelector('#chat-root').style.height = vh + 'px';
     }
 
     window.addEventListener('resize', updateHeight);
