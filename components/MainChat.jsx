@@ -456,9 +456,60 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
+  useEffect(() => {
+    const container = messageContainerRef.current;
+    const input = inputRef.current;
+    if (!container || !input) return;
+
+    // Handler to adjust bottom padding based on the visual viewport (keyboard)
+    const adjustForKeyboard = () => {
+      const vv = window.visualViewport;
+      const inputH = input.offsetHeight || 60;
+
+      if (vv) {
+        const keyboardHeight = window.innerHeight - vv.height;
+        // add a little extra so messages aren't hidden behind the input
+        container.style.paddingBottom = `${keyboardHeight + inputH + 8}px`;
+        // keep it scrolled
+        container.scrollTop = container.scrollHeight;
+      } else {
+        // fallback: no visualViewport (older safari) - ensure a minimal padding
+        container.style.paddingBottom = `${inputH + 8}px`;
+      }
+    };
+
+    // Focus handler scrolls to bottom after keyboard animates
+    const onFocus = () => {
+      setTimeout(scrollToBottom, 350);
+    };
+
+    // Attach listeners
+    window.addEventListener("resize", adjustForKeyboard);
+    input.addEventListener("focus", onFocus);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", adjustForKeyboard);
+      window.visualViewport.addEventListener("scroll", adjustForKeyboard);
+    }
+
+    // Initial adjust (in case keyboard already shown)
+    adjustForKeyboard();
+
+    return () => {
+      window.removeEventListener("resize", adjustForKeyboard);
+      input.removeEventListener("focus", onFocus);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", adjustForKeyboard);
+        window.visualViewport.removeEventListener("scroll", adjustForKeyboard);
+      }
+      // remove inline padding if needed
+      if (container) container.style.paddingBottom = "";
+    };
+  }, []);
+
   return (
     <div
-      className="flex flex-col w-full h-[100dvh]"
+      className="flex flex-col w-full h-[100dvh] min-h-0"
     
     >
       <div
