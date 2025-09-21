@@ -460,9 +460,8 @@ const MainChat = () => {
   }
   useEffect(() => {
     function updateHeight() {
-  const vh = window.visualViewport
-    ? window.visualViewport.height
-    : window.innerHeight;
+      const keyboardHeight = window.innerHeight - window.visualViewport.height
+  const vh =  window.innerHeight - keyboardHeight;
 
   document.querySelector('#chat-root').style.height = vh + 'px';
 }
