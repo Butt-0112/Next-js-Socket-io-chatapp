@@ -459,62 +459,30 @@ const MainChat = () => {
 
   }
   useEffect(() => {
-    const container = messageContainerRef.current;
-    const input = inputRef.current;
-    const mainContainer = mainContainerRef.current
-    if (!container || !input ||!mainContainer) return;
+    function updateHeight() {
+  const vh = window.visualViewport
+    ? window.visualViewport.height
+    : window.innerHeight;
 
-    // Handler to adjust bottom padding based on the visual viewport (keyboard)
-    const adjustForKeyboard = () => {
-      const vv = window.visualViewport;
-      const inputH = input.offsetHeight || 60;
+  document.querySelector('#chat-root').style.height = vh + 'px';
+}
 
-      if (vv) {
-        const keyboardHeight = window.innerHeight - vv.height;
-        // add a little extra so messages aren't hidden behind the input
-        // container.style.paddingBottom = `${keyboardHeight + inputH + 8}px`;
-        // // keep it scrolled
-        // container.scrollTop = container.scrollHeight;
-        mainContainer.style.height= window.innerHeight- keyboardHeight
-      } else {
-        // fallback: no visualViewport (older safari) - ensure a minimal padding
-        // container.style.paddingBottom = `${inputH + 8}px`;
-      }
-    };
+window.addEventListener('resize', updateHeight);
 
-    // Focus handler scrolls to bottom after keyboard animates
-    const onFocus = () => {
-      setTimeout(scrollToBottom, 350);
-    };
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', updateHeight);
+  window.visualViewport.addEventListener('scroll', updateHeight);
+}
 
-    // Attach listeners
-    window.addEventListener("resize", adjustForKeyboard);
-    input.addEventListener("focus", onFocus);
+updateHeight();
 
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", adjustForKeyboard);
-      window.visualViewport.addEventListener("scroll", adjustForKeyboard);
-    }
-
-    // Initial adjust (in case keyboard already shown)
-    adjustForKeyboard();
-
-    return () => {
-      window.removeEventListener("resize", adjustForKeyboard);
-      input.removeEventListener("focus", onFocus);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", adjustForKeyboard);
-        window.visualViewport.removeEventListener("scroll", adjustForKeyboard);
-      }
-      // remove inline padding if needed
-      if (container) container.style.paddingBottom = "";
-    };
-  }, []);
+   }, []);
 
   return (
     <div
       className="flex flex-col w-full h-[100dvh] min-h-0"
       ref={mainContainerRef}
+      id="chat-root"
     >
       <div
         className="flex items-center p-[8px] border-b"
