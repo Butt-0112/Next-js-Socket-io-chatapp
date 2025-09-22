@@ -474,7 +474,7 @@ window.addEventListener('resize', updateVh);
 
   return (
     <div
-      className="flex flex-col w-full"
+      className="flex flex-col w-full overflow-hidden"
       ref={mainContainerRef}
       id="chat-root"
       style={{ height: 'calc(var(--vh) * 100)' }}
