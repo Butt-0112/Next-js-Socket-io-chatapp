@@ -458,26 +458,14 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
-  useEffect(() => {
-function updateVh() {
-  const vh = window.visualViewport
-    ? window.visualViewport.height * 0.01
-    : window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-updateVh();
-window.visualViewport?.addEventListener('resize', updateVh);
-window.visualViewport?.addEventListener('scroll', updateVh);
-window.addEventListener('resize', updateVh);
-
-  }, []);
+ 
 
   return (
     <div
       className="flex flex-col w-full overflow-hidden"
       ref={mainContainerRef}
       id="chat-root"
-      style={{ height: 'calc(var(--vh) * 100)' }}
+      
   
     >
       <div
