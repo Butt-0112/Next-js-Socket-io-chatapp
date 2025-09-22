@@ -30,6 +30,7 @@ export default function RootLayout({ children }) {
       <html lang="en" suppressHydrationWarning>
         <head>
           <meta name="apple-mobile-web-app-title" content="LiveChat" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"></meta>
         </head>
         <body className="overflow-hidden">
           <StateProvider>
