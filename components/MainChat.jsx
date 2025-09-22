@@ -470,7 +470,7 @@ useEffect(() => {
     // Decide threshold: if height < 90% of full then keyboard open
     if (vh < fullVh * 0.9) {
       // Keyboard probably open
-      mainContainer.style.height = '50dvh';
+      mainContainer.style.height = '20dvh';
     } else {
       // Keyboard probably closed
       mainContainer.style.height = '100dvh';
