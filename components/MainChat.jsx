@@ -462,7 +462,7 @@ const MainChat = () => {
 
   return (
     <div
-      className="flex flex-col w-full overflow-hidden"
+      className="flex flex-col w-full h-[100dvh] overflow-hidden"
       ref={mainContainerRef}
       id="chat-root"
       
