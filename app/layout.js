@@ -43,7 +43,7 @@ export default function RootLayout({ children }) {
               <SidebarProvider >
                 {showSidebar && <AppSidebar />}
                 {/* {showSidebar && <SidebarTrigger onClick={() => { setIsOpen(!isOpen) }} className={` absolute left-0 z-50 top-4 ${!isOpen && ''} `} />} */}
-                <main className="w-full">
+                <main className="w-full overflow-hidden">
 
                   {
                     // !isSingleInstance ? <div className="text-center">Another instance of the application is already running.</div>
