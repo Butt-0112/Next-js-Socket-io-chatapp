@@ -25,10 +25,10 @@ export default function RootLayout({ children }) {
     const preventScroll = (e) => e.preventDefault();
 
     // prevent touch scrolling on everything except messages container
-    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.body.addEventListener('touchmove', preventScroll, { passive: false });
 
     return () => {
-      document.removeEventListener('touchmove', preventScroll);
+      document.body.removeEventListener('touchmove', preventScroll);
     };
   }, []);
   return (
