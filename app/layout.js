@@ -21,16 +21,7 @@ export default function RootLayout({ children }) {
   const noSidebarRoutes = ['/login', '/signup', '/dashboard'];
 
   const showSidebar = !noSidebarRoutes.some(route => pathname.startsWith(route));
-  useEffect(() => {
-    const preventScroll = (e) => e.preventDefault();
 
-    // prevent touch scrolling on everything except messages container
-    document.body.addEventListener('touchmove', preventScroll, { passive: false });
-
-    return () => {
-      document.body.removeEventListener('touchmove', preventScroll);
-    };
-  }, []);
   return (
     <ClerkProvider appearance={{
       baseTheme: dark,
