@@ -1,4 +1,6 @@
-{
+
+export default function manifest() {
+return {
   "name": "LiveChat",
   "short_name": "LiveChat",
   "icons": [
@@ -18,4 +20,5 @@
   "theme_color": "#ffffff",
   "background_color": "#09090b",
   "display": "standalone"
+}
 }
