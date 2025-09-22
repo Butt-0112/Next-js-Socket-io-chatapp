@@ -7,12 +7,27 @@ import React, { useRef, useEffect } from "react";
  */
 
 export default function TestChatAndroid() {
-  
+  const messageRef = useRef(null)
+  useEffect(() => {
+function updateVh() {
+  const messageContainer = messageRef.current
+  const vh = window.visualViewport
+    ? window.visualViewport.height 
+    : window.innerHeight ;
+  if(messageContainer){
+    messageContainer.style.height = vh+'px'
+  }
+}
+updateVh();
+window.visualViewport?.addEventListener('resize', updateVh);
+window.visualViewport?.addEventListener('scroll', updateVh);
+window.addEventListener('resize', updateVh);
 
+  }, []);
   return (
     <div className="chat-container">
       <header className="header">Header</header>
-      <div className="messages">
+      <div ref={messageRef} className="messages">
         {Array.from({ length: 50 }).map((_, i) => (
           <div className="msg" key={i}>Message {i}</div>
         ))}
