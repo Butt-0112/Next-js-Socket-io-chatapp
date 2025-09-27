@@ -27,13 +27,19 @@ export default function RootLayout({ children }) {
       baseTheme: dark,
     }} >
 
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <meta name="apple-mobile-web-app-title" content="LiveChat" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"></meta>
-        </head>
-        <body className="overflow-hidden">
           <StateProvider>
+      <html lang="en" suppressHydrationWarning>
+
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" />
+          {/* <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /> */}
+
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="LiveChat" />
+        </head>
+        <body className="antialiased">
 
             <ThemeProvider
               attribute="class"
@@ -43,20 +49,12 @@ export default function RootLayout({ children }) {
             >
               <SidebarProvider >
                 {showSidebar && <AppSidebar />}
-                {/* {showSidebar && <SidebarTrigger onClick={() => { setIsOpen(!isOpen) }} className={` absolute left-0 z-50 top-4 ${!isOpen && ''} `} />} */}
-                <main className="w-full overflow-hidden fixed">
-
-                  {
-                    // !isSingleInstance ? <div className="text-center">Another instance of the application is already running.</div>
-                    // : 
-                    children
-                  }
-                </main>
+                {children}
               </SidebarProvider>
             </ThemeProvider>
-          </StateProvider>
         </body>
       </html>
+          </StateProvider>
     </ClerkProvider>
   );
 }

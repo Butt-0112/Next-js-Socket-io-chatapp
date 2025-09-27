@@ -459,44 +459,11 @@ const MainChat = () => {
 
   }
  
-useEffect(() => {
-  const mainContainer = mainContainerRef.current;
-
-  const updateHeight = () => {
-    if (!mainContainer || !window.visualViewport) return;
-
-    const vh = window.visualViewport.height;
-    const fullVh = window.innerHeight; // initial height when no keyboard
-    // Decide threshold: if height < 90% of full then keyboard open
-    if (vh < fullVh * 0.9) {
-      // Keyboard probably open
-      mainContainer.style.height = '50dvh';
-      document.body.style.height = '50dvh'
-    } else {
-      // Keyboard probably closed
-      mainContainer.style.height = '100dvh';
-      document.body.style.height = '100dvh'
-    }
-  };
-
-  // run initially
-  updateHeight();
-
-  // attach listeners
-  window.visualViewport?.addEventListener('resize', updateHeight);
-  window.visualViewport?.addEventListener('scroll', updateHeight);
-
-  // cleanup
-  return () => {
-    window.visualViewport?.removeEventListener('resize', updateHeight);
-    window.visualViewport?.removeEventListener('scroll', updateHeight);
-  };
-}, []);
 
 
   return (
     <div
-      className="flex flex-col w-full h-[100dvh] overflow-hidden"
+      className="flex flex-col h w-full "
       ref={mainContainerRef}
       id="chat-root"
       
