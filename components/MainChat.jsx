@@ -104,15 +104,16 @@ const MainChat = () => {
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false)
   const [deleteFor, setDeleteFor] = useState('forme')
-  const messageContainerRef = useRef(null)
+  const messagesRef = useRef(null)
   const mainaudioRef = useRef(null)
   const mainlocalVidRef = useRef(null)
   const localVidRef = useRef(null)
   const audioRef = useRef(null)
   const [lastMessage, setLastMessage] = useState({})
-  const { isMobile } = useSidebar()
+  const { isMobile, open } = useSidebar()
   const inputRef = useRef(null);
   const mainContainerRef = useRef(null)
+  const [bottomOffset, setBottomOffset] = useState(0);
 
   const CleanupStates = () => {
     setIncomingCall(false);
@@ -162,8 +163,8 @@ const MainChat = () => {
   };
   useEffect(() => {
     // Scroll to the bottom whenever messages change
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
     if (selectedUser?.clerkId) {
       handleContactClick(selectedUser.clerkId)
@@ -458,16 +459,42 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
- 
 
+  useEffect(() => {
+    // scroll to bottom initially
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+
+    // Listen to viewport resize (keyboard open/close)
+    const handleResize = () => {
+      // This tells us how much space is left at the bottom of the viewport
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const layoutHeight = window.innerHeight;
+        // how much the keyboard overlaps the viewport
+        const offset = layoutHeight - viewportHeight;
+        setBottomOffset(offset);
+      }
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.visualViewport?.addEventListener("scroll", handleResize);
+    handleResize(); // initial
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.visualViewport?.removeEventListener("scroll", handleResize);
+    };
+  }, []);
 
   return (
     <div
-      className="flex flex-col h w-full "
+      className="fixed inset-0 flex flex-col "
       ref={mainContainerRef}
-      id="chat-root"
-      
-  
+      style={{ left: !isMobile && open ? 'var(--sidebar-width)' : '0' }}
+
+
     >
       <div
         className="flex flex-shrink-0 items-center p-[8px] border-b"
@@ -578,7 +605,11 @@ const MainChat = () => {
 
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto min-h-0" ref={messageContainerRef} >
+      <div style={{
+        WebkitOverflowScrolling: "touch",
+        height: `calc(100dvh - ${bottomOffset + 108}px)`
+      }}
+        className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
@@ -658,7 +689,13 @@ const MainChat = () => {
       </div>
       {selectedUser.clerkId && (
         <div
-          className="flex flex-shrink-0 items-center w-full border-t"
+          style={{
+            position: "fixed",
+            bottom: bottomOffset,
+            left: !isMobile && open ? 'var(--sidebar-width)' : '0',
+            right: 0,
+          }}
+          className="flex items-center w-full border-t z-50"
         >
           <div className="flex gap- px-4 w-full items-center">
             <Textarea

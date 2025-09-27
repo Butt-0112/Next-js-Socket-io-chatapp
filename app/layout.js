@@ -27,19 +27,17 @@ export default function RootLayout({ children }) {
       baseTheme: dark,
     }} >
 
-          <StateProvider>
-      <html lang="en" suppressHydrationWarning>
+      <StateProvider>
+        <html lang="en" suppressHydrationWarning>
 
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" />
-          {/* <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /> */}
-
-          <meta name="mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          <meta name="apple-mobile-web-app-title" content="LiveChat" />
-        </head>
-        <body className="antialiased">
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" />
+            <meta name="mobile-web-app-capable" content="yes" />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+            <meta name="apple-mobile-web-app-title" content="LiveChat" />
+          </head>
+          <body className="antialiased">
 
             <ThemeProvider
               attribute="class"
@@ -49,12 +47,15 @@ export default function RootLayout({ children }) {
             >
               <SidebarProvider >
                 {showSidebar && <AppSidebar />}
-                {children}
+                <main className="w-full ">
+
+                  {children}
+                </main>
               </SidebarProvider>
             </ThemeProvider>
-        </body>
-      </html>
-          </StateProvider>
+          </body>
+        </html>
+      </StateProvider>
     </ClerkProvider>
   );
 }
