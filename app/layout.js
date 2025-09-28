@@ -1,26 +1,25 @@
-"use client"
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import StateProvider from "@/context/state";
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/ChatSidebar";
-import { usePathname } from 'next/navigation'; // Import the hook to get the current path
-import { useContext, useEffect, useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  interactiveWidget: 'resizes-content', // Chrome Android keyboard overlay
+};
 export default function RootLayout({ children }) {
-  const [isOpen, setIsOpen] = useState(true)
-  const pathname = usePathname(); // Get the current path
-  const [isSingleInstance, setIsSingleInstance] = useState(true);
-
 
 
   // List of routes where the sidebar should be hidden 
   const noSidebarRoutes = ['/login', '/signup', '/dashboard'];
 
-  const showSidebar = !noSidebarRoutes.some(route => pathname.startsWith(route));
+  // const showSidebar = !noSidebarRoutes.some(route => window?location?.pathname.startsWith(route))
 
   return (
     <ClerkProvider appearance={{
@@ -31,11 +30,11 @@ export default function RootLayout({ children }) {
         <html lang="en" suppressHydrationWarning>
 
           <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" />
             <meta name="mobile-web-app-capable" content="yes" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <meta name="apple-mobile-web-app-status-bar-style" content="default" />
             <meta name="apple-mobile-web-app-title" content="LiveChat" />
+            {/* <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content" /> */}
           </head>
           <body className="antialiased">
 
@@ -46,8 +45,9 @@ export default function RootLayout({ children }) {
               disableTransitionOnChange
             >
               <SidebarProvider >
-                {showSidebar && <AppSidebar />}
-                <main className="w-full ">
+                {/* {showSidebar && <AppSidebar />} */}
+                <AppSidebar />
+                <main className="w-full max-h-100dvh overflow-hidden">
 
                   {children}
                 </main>

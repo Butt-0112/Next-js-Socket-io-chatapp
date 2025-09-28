@@ -110,7 +110,7 @@ const MainChat = () => {
   const localVidRef = useRef(null)
   const audioRef = useRef(null)
   const [lastMessage, setLastMessage] = useState({})
-  const { isMobile, open } = useSidebar()
+  const { isMobile ,open} = useSidebar()
   const inputRef = useRef(null);
   const mainContainerRef = useRef(null)
   const [bottomOffset, setBottomOffset] = useState(0);
@@ -459,7 +459,7 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
-
+ 
   useEffect(() => {
     // scroll to bottom initially
     if (messagesRef.current) {
@@ -492,9 +492,9 @@ const MainChat = () => {
     <div
       className="fixed inset-0 flex flex-col "
       ref={mainContainerRef}
-      style={{ left: !isMobile && open ? 'var(--sidebar-width)' : '0' }}
-
-
+style={{left: !isMobile&&open? 'var(--sidebar-width)': '0'}}
+      
+  
     >
       <div
         className="flex flex-shrink-0 items-center p-[8px] border-b"
@@ -605,11 +605,12 @@ const MainChat = () => {
 
         </div>
       </div>
-      <div style={{
-        WebkitOverflowScrolling: "touch",
-        height: `calc(100dvh - ${bottomOffset + 108}px)`
-      }}
-        className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
+      <div   style={{
+          WebkitOverflowScrolling: "touch",
+          // paddingBottom: bottomOffset ? / + 60 : 60, // reserve space for input
+          height:`calc(100dvh - ${bottomOffset + 108}px)`
+                }}
+       className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
@@ -689,17 +690,17 @@ const MainChat = () => {
       </div>
       {selectedUser.clerkId && (
         <div
-          style={{
-            position: "fixed",
-            bottom: bottomOffset,
-            left: !isMobile && open ? 'var(--sidebar-width)' : '0',
-            right: 0,
-          }}
-          className="flex items-center w-full border-t z-50"
+        style={{
+          position: "fixed",
+          bottom: bottomOffset,
+          left: !isMobile&&open? 'var(--sidebar-width)': '0',
+          right: 0,
+        }}
+          className="flex items-center h-[60px]  backdrop-blur-sm w-full border-t "
         >
-          <div className="flex gap- px-4 w-full items-center">
+          <div className="flex px-4 w-full items-center">
             <Textarea
-              className="resize-none min-h-[50px] h-[40px] max-h-[60px] border-none focus-visible:ring-0 rounded-[40px]"
+              className="resize-none h-full  border-none focus-visible:ring-0 rounded-[40px]"
               onKeyPress={handleEnterPress}
               onKeyDown={(e) => handleEnterPress(e)}
               value={message}
