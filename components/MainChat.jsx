@@ -78,7 +78,8 @@ const MainChat = () => {
     handleContactClick,
     deleteContact,
     decryptMessagesArray,
-    userStatus
+    userStatus,
+    fetchUserStatus
   } = useContext(context);
   const [message, setMessage] = useState("");
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
@@ -487,7 +488,11 @@ const MainChat = () => {
       window.visualViewport?.removeEventListener("scroll", handleResize);
     };
   }, []);
-
+useEffect(() => {
+  if (selectedUser?.clerkId && !userStatus[selectedUser.clerkId]) {
+    fetchUserStatus(selectedUser.clerkId);
+  }
+}, [selectedUser]);
   return (
     <div
       className="fixed inset-0 flex flex-col "

@@ -203,20 +203,31 @@ const StateProvider = ({ children }) => {
     };
 
     socket.emit('user:status', statusUpdate);
-    
-     setUserStatus(prevStatus => ({
-        ...prevStatus,
-        [statusUpdate.userId]: {
-          status: statusUpdate.status,
-          lastSeen: statusUpdate.lastSeen,
-        }
-      }));
+
+    setUserStatus(prevStatus => ({
+      ...prevStatus,
+      [statusUpdate.userId]: {
+        status: statusUpdate.status,
+        lastSeen: statusUpdate.lastSeen,
+      }
+    }));
 
   };
-  
+
   useEffect(() => {
     if (!socket || !user) return;
+    socket.on('connect', () => {
+      updateUserStatus('online');
+    });
 
+    socket.on('disconnect', () => {
+      updateUserStatus('offline');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      updateUserStatus('offline');
+    });
     // Handle incoming messages
     socket.on("private message", async ({ ephemeralPublicKey, from, _id, timestamp, ciphertexts }) => {
       // Add message to state
@@ -268,7 +279,7 @@ const StateProvider = ({ children }) => {
     });
     socket.on('user:status_change', (statusUpdate) => {
       // setContacts(prevContacts =>
-        
+
       setUserStatus(prevStatus => ({
         ...prevStatus,
         [statusUpdate.userId]: {
@@ -276,7 +287,7 @@ const StateProvider = ({ children }) => {
           lastSeen: statusUpdate.lastSeen,
         }
       }));
-    
+
 
     });
 
@@ -317,18 +328,7 @@ const StateProvider = ({ children }) => {
         socket.on('users', (users) => {
           setUsers(users)
         })
-        socket.on('connect', () => {
-          updateUserStatus('online');
-        });
 
-        socket.on('disconnect', () => {
-          updateUserStatus('offline');
-        });
-
-        socket.on('connect_error', (error) => {
-          console.error('Connection error:', error);
-          updateUserStatus('offline');
-        });
         socket.on("user connected", (user) => {
           setUsers(prev => [...prev, user])
         });
@@ -390,7 +390,27 @@ const StateProvider = ({ children }) => {
 
     setupKeys();
   }, [isSignedIn, user]);
+  const fetchUserStatus = async (clerkId) => {
+    const res = await fetch(`${API_BASE_URL}/api/users/fetchUserStatus`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clerkId,
+      }),
+    });
+    if (res.ok) {
+      const json = await res.json()
+      const status = json.status
 
+    setUserStatus(prevStatus => ({
+      ...prevStatus,
+      [status.userId]: {
+        status: status.online ===true? 'online':'offline' ,
+        lastSeen: status.lastSeen,
+      }
+    }));
+    }
+  }
   const deleteMessage = async (messageId) => {
     const response = await fetch(`${API_BASE_URL}/api/messaging/deleteMessage`, {
       method: "DELETE",
@@ -533,7 +553,7 @@ const StateProvider = ({ children }) => {
     const token = json.token
     return token
   }
-  return <context.Provider value={{ userStatus, decryptMessagesArray, decryptMessage, sendMessage, handleContactClick, messageStatuses, contacts, setContacts, getToken, deleteContact, sendNotification, deleteMessage, userchanged, setUserChanged, fetchUserById, API_BASE_URL, socket, peers, setPeers, stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
+  return <context.Provider value={{fetchUserStatus, userStatus, decryptMessagesArray, decryptMessage, sendMessage, handleContactClick, messageStatuses, contacts, setContacts, getToken, deleteContact, sendNotification, deleteMessage, userchanged, setUserChanged, fetchUserById, API_BASE_URL, socket, peers, setPeers, stream, userPeer, setUsers, users, selectedUser, setSelectedUser, user, messages, setMessages }}>
     {children}
   </context.Provider>
 }
