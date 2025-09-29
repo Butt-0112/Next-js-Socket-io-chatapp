@@ -199,7 +199,7 @@ const StateProvider = ({ children }) => {
       userId: user.id,
       status,
       timestamp: new Date(),
-      lastSeen: status === 'offline' ? new Date() : null
+      lastSeen: status === 'away' ? new Date() : null
     };
 
     socket.emit('user:status', statusUpdate);
@@ -304,7 +304,7 @@ const StateProvider = ({ children }) => {
 
 
     const handleVisibilityChange = () => {
-      const status = document.visibilityState === 'visible' ? 'online' : 'offline';
+      const status = document.visibilityState === 'visible' ? 'online' : 'away';
       updateUserStatus(status);
     };
 
