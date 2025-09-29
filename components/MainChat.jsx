@@ -111,7 +111,7 @@ const MainChat = () => {
   const localVidRef = useRef(null)
   const audioRef = useRef(null)
   const [lastMessage, setLastMessage] = useState({})
-  const { isMobile ,open} = useSidebar()
+  const { isMobile, open } = useSidebar()
   const inputRef = useRef(null);
   const mainContainerRef = useRef(null)
   const [bottomOffset, setBottomOffset] = useState(0);
@@ -460,7 +460,7 @@ const MainChat = () => {
     setMessage(message.content)
 
   }
- 
+
   useEffect(() => {
     // scroll to bottom initially
     if (messagesRef.current) {
@@ -488,18 +488,18 @@ const MainChat = () => {
       window.visualViewport?.removeEventListener("scroll", handleResize);
     };
   }, []);
-useEffect(() => {
-  if (selectedUser?.clerkId && !userStatus[selectedUser.clerkId]) {
-    fetchUserStatus(selectedUser.clerkId);
-  }
-}, [selectedUser]);
+  useEffect(() => {
+    if (selectedUser?.clerkId && !userStatus[selectedUser.clerkId]) {
+      fetchUserStatus(selectedUser.clerkId);
+    }
+  }, [selectedUser]);
   return (
     <div
-      className="fixed inset-0 flex flex-col "
+      className={`fixed inset-0 flex flex-col left-0 ${!isMobile && open && 'left-[var(--sidebar-width)]'}`}
       ref={mainContainerRef}
-style={{left: !isMobile&&open? 'var(--sidebar-width)': '0'}}
-      
-  
+
+
+
     >
       <div
         className="flex flex-shrink-0 items-center p-[8px] border-b"
@@ -610,12 +610,12 @@ style={{left: !isMobile&&open? 'var(--sidebar-width)': '0'}}
 
         </div>
       </div>
-      <div   style={{
-          WebkitOverflowScrolling: "touch",
-          // paddingBottom: bottomOffset ? / + 60 : 60, // reserve space for input
-          height:`calc(100dvh - ${bottomOffset + 108}px)`
-                }}
-       className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
+      <div style={{
+        WebkitOverflowScrolling: "touch",
+        // paddingBottom: bottomOffset ? / + 60 : 60, // reserve space for input
+        height: `calc(100dvh - ${bottomOffset + 116}px)`
+      }}
+        className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
         {selectedUser.clerkId ? (
           messages.length > 0 &&
           messages.map((message, index) => {
@@ -695,13 +695,16 @@ style={{left: !isMobile&&open? 'var(--sidebar-width)': '0'}}
       </div>
       {selectedUser.clerkId && (
         <div
-        style={{
-          position: "fixed",
-          bottom: bottomOffset,
-          left: !isMobile&&open? 'var(--sidebar-width)': '0',
-          right: 0,
-        }}
-          className="flex items-center h-[60px]  backdrop-blur-sm w-full border-t "
+          style={{
+            position: "fixed",
+            bottom: bottomOffset,
+            left: !isMobile && open ? 'var(--sidebar-width)' : '0',
+            width: !isMobile && open ? 'calc(100dvw - var(--sidebar-width))' : '100%',
+            right: 0,
+          }}
+          className={`fixed right-0 flex items-center h-[60px]  backdrop-blur-sm w-full bottom-[${bottomOffset}] border-t
+${!isMobile && open && 'w-[calc(100dvw - var(--sidebar-width))] left-[var(--sidebar-width)]'}
+            `}
         >
           <div className="flex px-4 w-full items-center">
             <Textarea
