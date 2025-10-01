@@ -30,7 +30,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
         stream.getVideoTracks().forEach(track => {
           track.enabled = !isVideoDisabled;
         });
-      ref.current.srcObject = stream
+        ref.current.srcObject = stream
       }
     };
 
@@ -67,28 +67,38 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
     setToggleVid(!toggleVid)
   }
   const handleMetadata = React.useCallback(() => {
-    if (mainlocalVidRef.current) {
-      const { videoWidth, videoHeight } = videoRef.current;
-      if (videoWidth && videoHeight) {
-        setAspectRatio(videoWidth / videoHeight);
+    if (selected === userID) {
+
+      if (mainlocalVidRef.current) {
+        const { videoWidth, videoHeight } = mainlocalVidRef.current;
+        if (videoWidth && videoHeight) {
+          setAspectRatio(videoWidth / videoHeight);
+        }
+      } else {
+        if (mainaudioRef.current) {
+          const { videoWidth, videoHeight } = mainaudioRef.current;
+          if (videoWidth && videoHeight) {
+            setAspectRatio(videoWidth / videoHeight);
+          }
+        }
       }
     }
-  }, []);
+  }, [stream, localStream]);
   return (
     <div className='w-full '>
       {incomingCall && <audio ref={ringtoneRef} className='hidden' autoPlay loop src='/audio/ringtone.mp3' />}
       {isCalling && <audio className='hidden' autoPlay loop src='/audio/ringing.mp3' />}
 
       <Card className={isMobile ? 'h-screen w-full flex flex-col justify-between bg-black' : 'px-2 py-2 h-full'}>
-          {(incomingCall || isCalling) &&
-        <CardHeader className='px-2 py-2'>
+        {(incomingCall || isCalling) &&
+          <CardHeader className='px-2 py-2'>
 
-           <CardTitle className='  animate-pulse px-2 py-2 rounded-lg text-center'>
-            {incomingCall && `Incoming ${callType} call`}
-            {isCalling && `Calling`}
-          </CardTitle>
-        </CardHeader>
-          }
+            <CardTitle className='  animate-pulse px-2 py-2 rounded-lg text-center'>
+              {incomingCall && `Incoming ${callType} call`}
+              {isCalling && `Calling`}
+            </CardTitle>
+          </CardHeader>
+        }
         {stream && hasVideo ? <div className='flex justify-center gap-[8px]'>
 
           <div className='relative'>
@@ -113,15 +123,15 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
 
           {stream && hasVideo ?
             (
-                <AspectRatio ratio={aspectRatio} className='overflow-hidden bg-black'>
+              <AspectRatio ratio={aspectRatio} className='overflow-hidden bg-black'>
                 {
                   selected === userID ?
-                      <video onContextMenu={(e) => { e.preventDefault() }} ref={mainlocalVidRef} autoPlay muted className={`rounded-lg h-full w-full object-contain`}  ></video>
-                    
+                    <video onContextMenu={(e) => { e.preventDefault() }} ref={mainlocalVidRef} autoPlay muted className={`rounded-lg h-full w-full object-contain`}  ></video>
+
                     :
                     <video onContextMenu={(e) => { e.preventDefault() }} ref={mainaudioRef} autoPlay muted className={`rounded-lg h-full w-full object-contain`} ></video>
                 }
-                    </AspectRatio>
+              </AspectRatio>
             )
             : <div className="flex gap-2  min-h-64 justify-center   flex-col items-center ">
               {user?.imageUrl ? (
@@ -139,7 +149,7 @@ const AudioCall = ({ mainaudioRef, audioRef, mainlocalVidRef, localVidRef, strea
 
         </Card>
         {isRndSelected && !incomingCall && <div className="flex items-center justify-center gap-4 py-3">
-          <button onClick={screenShare} disabled={isCalling} className='bg-zinc-800 px-2 py-2 disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
+          <button onClick={screenShare} disabled={isCalling || isMobile} className='bg-zinc-800 px-2 py-2 disabled:text-gray-400 disabled:hover:bg-zinc-800 disabled:cursor-no-drop text-white rounded-full hover:bg-zinc-700'>
 
             <Import className='rotate-180' size={25} />
           </button>

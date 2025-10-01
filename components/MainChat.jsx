@@ -495,10 +495,8 @@ const MainChat = () => {
   }, [selectedUser]);
   return (
     <div
-      className={`fixed inset-0 flex flex-col left-0 ${!isMobile && open && 'left-[var(--sidebar-width)]'}`}
+      className={`fixed inset-0 flex flex-col md:left-[var(--sidebar-width)] `}
       ref={mainContainerRef}
-
-
 
     >
       <div
@@ -612,7 +610,6 @@ const MainChat = () => {
       </div>
       <div style={{
         WebkitOverflowScrolling: "touch",
-        // paddingBottom: bottomOffset ? / + 60 : 60, // reserve space for input
         height: `calc(100dvh - ${bottomOffset + 116}px)`
       }}
         className="overflow-y-auto py-2 min-h-0" ref={messagesRef} >
@@ -625,7 +622,6 @@ const MainChat = () => {
               delivered: message.status.delivered,
               read: message.status.read
             };
-            console.log(messageStatus)
             return (
 
               <div
@@ -703,7 +699,7 @@ const MainChat = () => {
             right: 0,
           }}
           className={`fixed right-0 flex items-center h-[60px]  backdrop-blur-sm w-full bottom-[${bottomOffset}] border-t
-${!isMobile && open && 'w-[calc(100dvw - var(--sidebar-width))] left-[var(--sidebar-width)]'}
+            ${!isMobile && open && 'w-[calc(100dvw - var(--sidebar-width))] left-[var(--sidebar-width)]'}
             `}
         >
           <div className="flex px-4 w-full items-center">
@@ -769,7 +765,7 @@ ${!isMobile && open && 'w-[calc(100dvw - var(--sidebar-width))] left-[var(--side
           <div
             ref={windowRef}
             onClick={handleRndClick}
-            className={`  min-w-[320px] min-h-[320px] ${!isRndSelected && " cursor-pointer "
+            className={`  min-w-[320px] min-h-[320px] md:min-w-[500px] md:min-h-[400px]  ${!isRndSelected && " cursor-pointer "
               } ${isMobile && 'w-full'}`}
           >
             <AudioCall
