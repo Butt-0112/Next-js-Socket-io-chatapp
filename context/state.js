@@ -306,6 +306,9 @@ const StateProvider = ({ children }) => {
     const handleVisibilityChange = () => {
       const status = document.visibilityState === 'visible' ? 'online' : 'away';
       updateUserStatus(status);
+      if (document.visibilityState==='visible'&&selectedUser?.clerkId) {
+      handleContactClick(selectedUser.clerkId)
+    }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);

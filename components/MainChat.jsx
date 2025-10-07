@@ -167,9 +167,7 @@ const MainChat = () => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-    if (selectedUser?.clerkId) {
-      handleContactClick(selectedUser.clerkId)
-    }
+    
   }, [messages]);
   const handleMute = () => {
     // setMuted(true)
